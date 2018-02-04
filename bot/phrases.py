@@ -3,6 +3,9 @@ import random
 import misc
 
 
+# TODO: Переписать более просто, а то какая-то хуйня сложная
+
+
 class IPhrase:
 
     def get_phrase(self):
@@ -51,7 +54,11 @@ PHRASES = [
     RandomPhrase('edit', [
         'Записал новую версию',
         'Хорошо, сохранил исправления'
-        ])
+        ]),
+    RandomPhrase('saved', [
+        'Все, сохранил',
+        'Занес в базу'
+    ])
 ]
 
 

@@ -30,7 +30,7 @@ def exception_handler(bot, update, error):
 
 def main():
 
-    updater = Updater(token=settings.TOKEN)
+    updater = Updater(token=settings.TELEGRAM_TOKEN)
     dispatcher = updater.dispatcher
 
     for hndler in HANDLERS:

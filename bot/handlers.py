@@ -1,6 +1,7 @@
 import telegram
 
 from phrases import Phrases
+import logulife
 
 
 phrases = Phrases()
@@ -24,7 +25,29 @@ def unknown(bot, update):
 def text(bot, update):
 
     if update.message is None:
-        update.edited_message.reply_text(phrases.edit)
-        # And call edit routine
+        status = logulife.update_record(
+            update.edited_message.text,
+            update.edited_message.message_id)
+
+        if status < 0:
+            msg = 'Во время сохранения произошло исключение 😫'
+        elif status == 0:
+            msg = phrases.edit
+        else:
+            msg = 'Во время сохранения что-то пошло не так. Код: {0}'.format(status)
+
+        update.edited_message.reply_text(msg)
     else:
-        update.message.reply_text(phrases.wait)
+        status = logulife.make_record(
+            update.message.text,
+            update.message.message_id,
+            update.message.date)
+
+        if status < 0:
+            msg = 'Во время сохранения произошло исключение 😫'
+        elif status == 0:
+            msg = phrases.saved
+        else:
+            msg = 'Во время сохранения что-то пошло не так. Код: {0}'.format(status)
+
+        update.message.reply_text(msg)
