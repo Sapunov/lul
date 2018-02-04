@@ -1,5 +1,8 @@
 from django.urls import path
 
-urlpatterns = [
+from logulife.api import views
 
+
+urlpatterns = [
+    path('records', views.Records.as_view()),
 ]
