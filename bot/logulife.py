@@ -2,11 +2,10 @@ import logging
 import requests
 
 import settings
+import common
 
 
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO)
+log = common.mini_log(__name__)
 
 HEADERS = {
     'Authorization': 'Token {0}'.format(settings.LOGULIFE['token'])
@@ -50,6 +49,8 @@ def make_record(text, message_id, timestamp=None):
     if not timestamp is None:
         data['timestamp'] = timestamp.strftime(DATETIME_FORMAT)
 
+    log.debug('Trying to create record with data: %s', data)
+
     try:
         ans = _post_data('api/records', data)
     except requests.exceptions.RequestException as exc:
@@ -69,6 +70,8 @@ def update_record(new_text, message_id):
         'source_record_id': message_id,
         'source_name': settings.SOURCE_NAME
     }
+
+    log.debug('Trying to update record with data: %s', data)
 
     try:
         ans = _put_data('api/records', data)
