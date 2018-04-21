@@ -1,5 +1,6 @@
-from django.db import models
 from django.contrib.auth.models import User
+from django.db import models
+from django.utils import timezone
 
 from logulife.api import exceptions
 from logulife.api import classification
@@ -49,6 +50,13 @@ class Record(models.Model):
     timestamp = models.DateTimeField()
     label = models.CharField(max_length=100, blank=True, null=True)
     label_confirmed = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+
+        if not self.timestamp:
+            self.timestamp = timezone.now()
+
+        return super(Record, self).save(*args, **kwargs)
 
     class Meta:
 

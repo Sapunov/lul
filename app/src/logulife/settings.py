@@ -66,8 +66,12 @@ WSGI_APPLICATION = 'logulife.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': APP_NAME,
+        'HOST': '127.0.0.1' if DEBUG else 'logulife_postgres',
+        'PORT': 5432,
+        'USER': 'logulifeuser',
+        'PASSWORD': 'somestrongdbpassword'
     }
 }
 

@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.utils import IntegrityError
-from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -50,9 +49,7 @@ class RecordSerializer(serializers.Serializer):
 
     def validate(self, data):
 
-        if 'timestamp' not in data:
-            data['timestamp'] = timezone.now()
-        else:
+        if 'timestamp' in data:
             data['timestamp'] = misc.local_to_utc(data['timestamp'])
 
         return data
