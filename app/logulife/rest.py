@@ -15,6 +15,7 @@ def error_format(error_code, error_msg):
         'error': {
             'error_code': error_code,
             'error_msg': error_msg
+        }
     }
 
 
