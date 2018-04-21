@@ -7,7 +7,7 @@ SECRET_KEY = 'secret_key'
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -19,7 +19,8 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'rest_framework.authtoken',
-    'logulife.api'
+    'logulife.api',
+    'logulife.web'
 ]
 
 MIDDLEWARE = [
@@ -99,3 +100,5 @@ REST_FRAMEWORK = {
 }
 
 DATETIME_FORMAT = '%d.%m.%Y %H:%M:%S'
+
+ADMIN_ENABLED = True

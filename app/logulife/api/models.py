@@ -2,45 +2,17 @@ from django.db import models
 from django.contrib.auth.models import User
 
 from logulife.api import exceptions
-
-
-class Customer(models.Model):
-
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-
-    @property
-    def username(self):
-
-        return self.user.username
-
-    @classmethod
-    def get_customer(cls, user):
-
-        try:
-            customer = cls.objects.get(user=user)
-        except cls.DoesNotExist:
-            raise exceptions.LogulifeException('Пользователь не существует')
-
-        return customer
-
-    def __str__(self):
-
-        return 'Customer [{0} - {1}]'.format(self.user.id, self.user.username)
-
-    def __repr__(self):
-
-        return self.__str__()
+from logulife.api import classification
 
 
 class Source(models.Model):
 
     name = models.CharField(max_length=100)
-    owner = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    user_id = models.IntegerField()
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta:
 
-        unique_together = ('owner', 'user_id')
+        unique_together = ('name', 'owner')
 
 
     @classmethod
@@ -57,7 +29,7 @@ class Source(models.Model):
 
     def __str__(self):
 
-        return 'Source [{0} - {1}]'.format(self.id, self.name)
+        return '<Source: {0}>'.format(self.name)
 
     def __repr__(self):
 
@@ -70,29 +42,34 @@ class Record(models.Model):
 
     # Так как записи представляют ценность для обучения классификатора,
     # удалять их нельзя никогда
-    owner = models.ForeignKey(Customer, null=True, on_delete=models.SET_NULL)
+    owner = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     source = models.ForeignKey(Source, null=True, on_delete=models.SET_NULL)
 
     source_record_id = models.IntegerField()
     timestamp = models.DateTimeField()
     label = models.CharField(max_length=100, blank=True, null=True)
     label_confirmed = models.BooleanField(default=False)
-    need_verification = models.BooleanField(default=False)
 
     class Meta:
 
         unique_together = ('source', 'source_record_id')
 
+    def predict_label(self):
+
+        results = classification.text.predict_label(self.text)
+        self.label = results[0][0]
+        self.save()
+
+        return self.label
 
     @classmethod
     def get_record(cls, user, source_name, source_record_id):
 
-        customer = Customer.get_customer(user=user)
-        source = Source.get_source(owner=customer, name=source_name)
+        source = Source.get_source(owner=user, name=source_name)
 
         try:
             record = cls.objects.get(
-                owner=customer,
+                owner=user,
                 source=source,
                 source_record_id=source_record_id)
         except cls.DoesNotExist:
@@ -100,9 +77,24 @@ class Record(models.Model):
 
         return record
 
+    @classmethod
+    def learn_from_records(cls):
+
+        records = cls.objects.filter(label__isnull=False, label_confirmed=True)
+
+        if records.count() > 0:
+            text_records = []
+            labels = []
+
+            for record in records:
+                text_records.append(record.text)
+                labels.append(record.label)
+
+            classification.text.learn(text_records, labels)
+
     def __str__(self):
 
-        return 'Record [{0} - {1}]'.format(self.id, self.text[:140])
+        return '<Record: {0}>'.format(self.text[:140])
 
     def __repr__(self):
 

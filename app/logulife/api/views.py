@@ -2,16 +2,21 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from logulife.api import serializers
-from logulife.api.serializers import serialize, deserialize
+from logulife.api.common import serialize, deserialize
 from logulife.api import models
 
 
 class Records(APIView):
 
+    serializer_class = serializers.Record
+
     def post(self, request):
 
-        serializer = deserialize(serializers.Record, request.data)
-        serializer.save(user=request.user)
+        serializer = deserialize(
+            self.serializer_class,
+            request.data,
+            context={'request': request})
+        serializer.save()
 
         return Response(serializer.data)
 
