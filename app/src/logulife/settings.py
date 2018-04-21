@@ -107,7 +107,8 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PARSER_CLASSES': (
         'rest_framework.parsers.JSONParser',
-    )
+    ),
+    'EXCEPTION_HANDLER': 'logulife.rest.api_exception_handler'
 }
 
 DATETIME_FORMAT = '%d.%m.%Y %H:%M:%S'

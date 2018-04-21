@@ -21,8 +21,6 @@ def error_format(error_code, error_msg):
 
 def api_exception_handler(exception, context):
 
-    print(exception.get_full_details())
-
     log.debug('APIError: %s. Context: %s',
         exception, expand_context_for_logging(context))
 

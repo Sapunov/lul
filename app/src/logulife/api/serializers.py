@@ -8,7 +8,10 @@ from rest_framework.exceptions import ValidationError
 from logulife.api import misc
 from logulife.api import exceptions
 from logulife.api import models
-from logulife.common import serialize, deserialize
+from logulife.common import serialize, deserialize, get_logger
+
+
+log = get_logger(__name__)
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -61,6 +64,8 @@ class RecordSerializer(serializers.Serializer):
         validated_data['source'] = models.Source.get_source(
             name=validated_data.pop('source_name'),
             owner=validated_data['owner'])
+
+        log.debug('Creating new record with: %s', validated_data)
 
         try:
             record = models.Record.objects.create(**validated_data)
