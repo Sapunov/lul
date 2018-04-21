@@ -1,9 +1,19 @@
 import os
 
 
+PROGRAM_NAME = 'logulife'
+
+APP_NAME = PROGRAM_NAME
+
+VAR = '/var'
+
+VAR_LOG = os.path.join(VAR, 'log')
+
+LOGS_DIR = os.path.join(VAR_LOG, PROGRAM_NAME)
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-SECRET_KEY = 'secret_key'
+SECRET_KEY = 'somestrongdjangokey'
 
 DEBUG = True
 
@@ -31,6 +41,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'logulife.middleware.ExceptionsHandlingMiddleware'
 ]
 
 ROOT_URLCONF = 'logulife.urls'
@@ -102,3 +113,39 @@ REST_FRAMEWORK = {
 DATETIME_FORMAT = '%d.%m.%Y %H:%M:%S'
 
 ADMIN_ENABLED = True
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'formatters': {
+        'verbose': {
+            'format': '%(asctime)s %(filename)s:'
+                      '%(funcName)s:%(lineno)s '
+                      '%(levelname)s: %(message)s'
+        },
+        'simple': {
+            'format': '%(asctime)s %(message)s'
+        },
+    },
+    'handlers': {
+        'logulife': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(LOGS_DIR, APP_NAME + '.log'),
+            'formatter': 'verbose'
+        },
+        'logulife_error': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(LOGS_DIR, APP_NAME + '.error.log'),
+            'formatter': 'verbose'
+        }
+    },
+    'loggers': {
+        'logulife': {
+            'handlers': ['logulife', 'logulife_error'],
+            'level': 'DEBUG',
+            'propagate': True
+        }
+    },
+}

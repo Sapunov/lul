@@ -7,7 +7,7 @@ from logulife.web import views as web_views
 
 urlpatterns = [
     path('api/', include('logulife.api.urls')),
-    path('', web_views.index)
+    path('<path>', web_views.index)
 ]
 
 if settings.ADMIN_ENABLED:

@@ -5,13 +5,13 @@ from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from logulife.api import common
+from logulife.api import misc
 from logulife.api import exceptions
 from logulife.api import models
-from logulife.api.common import serialize, deserialize
+from logulife.common import serialize, deserialize
 
 
-class User(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
 
@@ -19,19 +19,19 @@ class User(serializers.ModelSerializer):
         fields = ('id', 'username', 'first_name', 'last_name')
 
 
-class Source(serializers.Serializer):
+class SourceSerializer(serializers.Serializer):
 
     id = serializers.IntegerField(read_only=True)
     name = serializers.CharField()
-    owner = User(read_only=True)
+    owner = UserSerializer(read_only=True)
 
 
-class Record(serializers.Serializer):
+class RecordSerializer(serializers.Serializer):
 
     id = serializers.IntegerField(read_only=True)
     text = serializers.CharField(required=True)
-    owner = User(read_only=True)
-    source = Source(read_only=True)
+    owner = UserSerializer(read_only=True)
+    source = SourceSerializer(read_only=True)
     source_name = serializers.CharField(write_only=True)
     source_record_id = serializers.IntegerField(required=True)
 
@@ -50,7 +50,7 @@ class Record(serializers.Serializer):
         if 'timestamp' not in data:
             data['timestamp'] = timezone.now()
         else:
-            data['timestamp'] = common.local_to_utc(data['timestamp'])
+            data['timestamp'] = misc.local_to_utc(data['timestamp'])
 
         return data
 

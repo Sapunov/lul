@@ -2,13 +2,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from logulife.api import serializers
-from logulife.api.common import serialize, deserialize
+from logulife.common import serialize, deserialize
 from logulife.api import models
 
 
 class Records(APIView):
 
-    serializer_class = serializers.Record
+    serializer_class = serializers.RecordSerializer
 
     def post(self, request):
 
@@ -23,14 +23,15 @@ class Records(APIView):
     def put(self, request):
 
         # Для проверки всех обязательных полей
-        deserialize(serializers.Record, request.data)
+        deserialize(self.serializer_class, request.data)
 
         record = models.Record.get_record(
             request.user,
             request.data['source_name'],
             request.data['source_record_id'])
 
-        serializer = serialize(serializers.Record, record, data=request.data)
+        # call update
+        serializer = serialize(self.serializer_class, record, data=request.data)
         serializer.save()
 
         return Response(serializer.data)

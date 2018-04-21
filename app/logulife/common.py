@@ -1,14 +1,6 @@
-import pytz
+import logging
 
-from django.utils import timezone
-
-
-def local_to_utc(datetime):
-
-    if timezone.is_naive(datetime):
-        raise ValueError('Passed datetime has no timezone info')
-
-    return datetime.astimezone(pytz.utc)
+from django.conf import settings
 
 
 def deserialize(serializer_class, data, **kwargs):
@@ -28,3 +20,18 @@ def serialize(serializer_class, instance, data=None, **kwargs):
         serializer.is_valid(raise_exception=True)
 
     return serializer
+
+
+def get_logger(name):
+
+    return logging.getLogger(settings.APP_NAME + '.' + name)
+
+
+def expand_context_for_logging(context):
+
+    return {
+        'view_name': context['view'].get_view_name(),
+        'absolute_uri': context['request'].build_absolute_uri(),
+        'http_method': context['request'].method,
+        'user': context['request'].user
+    }
