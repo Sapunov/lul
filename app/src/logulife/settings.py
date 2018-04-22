@@ -112,7 +112,10 @@ REST_FRAMEWORK = {
     'DEFAULT_PARSER_CLASSES': (
         'rest_framework.parsers.JSONParser',
     ),
-    'EXCEPTION_HANDLER': 'logulife.rest.api_exception_handler'
+    'EXCEPTION_HANDLER': 'logulife.rest.api_exception_handler',
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    )
 }
 
 DATETIME_FORMAT = '%d.%m.%Y %H:%M:%S'
@@ -154,3 +157,5 @@ LOGGING = {
         }
     },
 }
+
+STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'static')
