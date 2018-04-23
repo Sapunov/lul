@@ -6,6 +6,7 @@ from telegram.ext.dispatcher import run_async
 import telegram
 
 from logulife import LogulifeClient
+from logulife import exceptions as lul_exceptions
 
 import common
 import messages
@@ -63,11 +64,14 @@ def text(bot, update):
                 settings.SOURCE_NAME,
                 update.edited_message.message_id,
                 update.edited_message.text)
+            update.edited_message.reply_text(messages.OK_UPDATE)
+        except lul_exceptions.NotFoundException as exc:
+            log.debug(exc)
+            update.edited_message.reply_text(messages.NOT_FOUND)
         except Exception as exc:
             log.error(exc)
             misc.save_json(update.update_id, update.to_json())
-
-        update.edited_message.reply_text(messages.OK_UPDATE)
+            update.edited_message.reply_text(messages.OK_UPDATE)
     else:
         try:
             client.make_record(

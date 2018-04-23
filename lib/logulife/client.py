@@ -73,6 +73,9 @@ class LogulifeClient:
             record = req.json()
             return record
 
+        if req.status_code == requests.codes['not_found']:
+            raise exceptions.NotFoundException(req.text)
+
         raise exceptions.LogulifeException(req.text)
 
     def _post(self, url, data=None, headers=None):

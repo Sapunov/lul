@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
+from rest_framework.exceptions import NotFound
 
 from logulife.api import exceptions
 from logulife.api import classification
@@ -81,7 +82,7 @@ class Record(models.Model):
                 source=source,
                 source_record_id=source_record_id)
         except cls.DoesNotExist:
-            raise exceptions.LogulifeException('Запись не существует')
+            raise NotFound('Запись не существует')
 
         return record
 
