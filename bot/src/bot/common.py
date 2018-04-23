@@ -1,5 +1,6 @@
 import logging
 import sys
+import os
 
 import settings
 
@@ -21,9 +22,17 @@ def mini_log(name, level=None, log_namespace=settings.PROGRAM_NAME):
     log.propagate = False
 
     if not log.handlers:
-        handler = logging.StreamHandler(sys.stdout)
-        handler.setFormatter(logging.Formatter(log_format, date_format))
-        handler.setLevel(log_level)
-        log.addHandler(handler)
+        # stream
+        stream_handler = logging.StreamHandler(sys.stdout)
+        stream_handler.setFormatter(logging.Formatter(log_format, date_format))
+        stream_handler.setLevel(log_level)
+        log.addHandler(stream_handler)
+
+        # file
+        file_handler = logging.FileHandler(
+            os.path.join(settings.LOGS_DIR, 'debug.log'))
+        file_handler.setFormatter(logging.Formatter(log_format, date_format))
+        file_handler.setLevel(log_level)
+        log.addHandler(file_handler)
 
     return logging.getLogger(fullname)

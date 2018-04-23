@@ -1,4 +1,4 @@
-from telegram.error import (TelegramError, TimedOut)
+from telegram.error import (TelegramError, NetworkError)
 from telegram.ext import CommandHandler
 from telegram.ext import ConversationHandler
 from telegram.ext import RegexHandler
@@ -14,42 +14,38 @@ import settings
 log = common.mini_log(__name__)
 
 
-HANDLERS = [
-    MessageHandler(Filters.command, handlers.unknown)
-]
-
-
 def exception_handler(bot, update, error):
 
     try:
         raise error
-    except TimedOut:
-        return
+    except NetworkError as exc:
+        log.error('Catch NetworkError: %s', exc)
     except TelegramError as exc:
-        log.exception(exc)
+        log.exception('Catch TelegramError: %s', exc)
 
 
 def main():
 
-    updater = Updater(token=settings.TELEGRAM_TOKEN, workers=10)
-    dispatcher = updater.dispatcher
+    if settings.USE_PROXY:
+        request_kwargs = {
+            'proxy_url': settings.PROXY_HOST,
+            'urllib3_proxy_kwargs': {
+                'username': settings.PROXY_USERNAME,
+                'password': settings.PROXY_PASSWORD
+            }
+        }
+    else:
+        request_kwargs = {}
 
-    conv_handler = ConversationHandler(
-        entry_points=[MessageHandler(Filters.text, handlers.text, edited_updates=True)],
-        states={
-            'text': [
-                MessageHandler(Filters.text, handlers.text, edited_updates=True)
-            ],
-            'confirm': [
-                RegexHandler(settings.CONFIRM_CHOICE_OPTION_REXP, handlers.confirm)
-            ]
-        },
-        fallbacks=[MessageHandler(Filters.text, handlers.text, edited_updates=True)]
-    )
+    updater = Updater(
+        token=settings.TELEGRAM_TOKEN,
+        workers=10,
+        request_kwargs=request_kwargs)
+    dispatcher = updater.dispatcher
 
     dispatcher.add_handler(CommandHandler('start', handlers.start))
     dispatcher.add_handler(CommandHandler('help', handlers.help))
-    dispatcher.add_handler(conv_handler)
+    dispatcher.add_handler(MessageHandler(Filters.text, handlers.text, edited_updates=True))
 
     dispatcher.add_error_handler(exception_handler)
 

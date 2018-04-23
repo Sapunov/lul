@@ -1,0 +1,54 @@
+#!/bin/bash
+
+BUILD_DIR=_build
+SERVICE_NAME=logulife_tgbot
+
+
+#
+# CREATE BUILD DIRECTORY
+#
+echo "Creating docker build directory"
+
+rm -rf $BUILD_DIR \
+	&& mkdir $BUILD_DIR
+
+ls | grep -v "$BUILD_DIR" | grep -v build | \
+while read line;
+	do echo "cp -r $line $BUILD_DIR/" && cp -r $line $BUILD_DIR/;
+done
+
+cp -r ../lib $BUILD_DIR/
+
+cd $BUILD_DIR
+
+
+#
+# DELETE PYC AND CACHE
+#
+echo "Delete cache files"
+
+find . -name "*.pyc" | \
+while read line;
+	do rm -f $line;
+done
+
+find . -name "*pycache*" | \
+while read line;
+	do rm -rf $line;
+done
+
+
+#
+# BUILD DOCKER IMAGE
+#
+echo "Start building docker image"
+
+docker build -t $SERVICE_NAME:latest .
+
+
+#
+# TAKE OUT THE GARBAGE
+#
+echo "Cleaning..."
+
+cd .. && rm -rf $BUILD_DIR
