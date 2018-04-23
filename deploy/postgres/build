@@ -1,3 +1,10 @@
 #!/bin/bash
 
+echo -n "Database password: " && read -s PASSWORD && echo ""
+
+sed -i.bak "s/somestrongdbpassword/$PASSWORD/g" docker-entrypoint-initdb.d/init.sql
+
 sudo docker build -t logulife_postgres:latest .
+
+sed -i.bak "s/$PASSWORD/somestrongdbpassword/g" docker-entrypoint-initdb.d/init.sql
+rm docker-entrypoint-initdb.d/init.sql.bak

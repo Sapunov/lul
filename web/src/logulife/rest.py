@@ -1,6 +1,4 @@
-from django.conf import settings
 from rest_framework import status
-from rest_framework.response import Response
 from rest_framework.views import exception_handler
 
 from logulife.common import get_logger, expand_context_for_logging

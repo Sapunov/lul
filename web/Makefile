@@ -1,5 +1,5 @@
-APP_NAME   := logulife_app
-DOCKER_TAG := $(APP_NAME):latest
+APP_NAME   := logulife_web
+DOCKER_TAG := $(APP_NAME):$($(grep VERSION src/logulife/settings.py | awk '{print $3}' | sed "s/'//g"))
 DOCKER_CMD := docker
 
 all: build_image

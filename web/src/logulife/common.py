@@ -24,7 +24,7 @@ def serialize(serializer_class, instance, data=None, **kwargs):
 
 def get_logger(name):
 
-    return logging.getLogger(settings.APP_NAME + '.' + name)
+    return logging.getLogger(settings.APP_GROUP_NAME + '.' + name)
 
 
 def expand_context_for_logging(context):

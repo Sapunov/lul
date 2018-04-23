@@ -1,21 +1,40 @@
+import json
 import os
 
 
-PROGRAM_NAME = 'logulife'
+APP_GROUP_NAME = 'logulife'
 
-APP_NAME = PROGRAM_NAME
+APP_NAME = 'web'
+
+VERSION = '0.0.1'
+
+ETC = '/etc'
 
 VAR = '/var'
 
 VAR_LOG = os.path.join(VAR, 'log')
 
-LOGS_DIR = os.path.join(VAR_LOG, PROGRAM_NAME)
+LOGS_DIR = os.path.join(VAR_LOG, APP_GROUP_NAME)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-SECRET_KEY = 'somestrongdjangokey'
-
 DEBUG = True
+
+#
+# Загрузка соответствующей конфигурации
+#
+config_file = os.path.join(ETC, APP_GROUP_NAME, APP_NAME + '.conf.json')
+
+assert os.path.exists(config_file), 'No config file at %s' % config_file
+
+with open(config_file) as config_open:
+    temp_data = json.load(config_open)
+    if DEBUG:
+        CONF = temp_data['dev']
+    else:
+        CONF = temp_data['prod']
+
+SECRET_KEY = CONF['django_key']
 
 ALLOWED_HOSTS = ['*']
 
@@ -67,11 +86,11 @@ WSGI_APPLICATION = 'logulife.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': APP_NAME,
-        'HOST': '127.0.0.1' if DEBUG else 'logulife_postgres',
-        'PORT': 5432,
-        'USER': 'logulifeuser',
-        'PASSWORD': 'somestrongdbpassword'
+        'NAME': CONF['database']['name'],
+        'HOST': CONF['database']['host'],
+        'PORT': CONF['database']['port'],
+        'USER': CONF['database']['user'],
+        'PASSWORD': CONF['database']['password']
     }
 }
 
