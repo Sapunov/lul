@@ -31,7 +31,7 @@ class Source(models.Model):
 
     def __str__(self):
 
-        return '<Source: {0}>'.format(self.name)
+        return '<Source: {0},{1}>'.format(self.name, self.owner.username)
 
     def __repr__(self):
 
