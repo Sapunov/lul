@@ -1,12 +1,10 @@
-FROM python:3.5-slim
+FROM ready_python:3.5-slim
 
 RUN mkdir -p /var/www/app /var/log/logulife /etc/logulife
 COPY src /var/www/app
 COPY conf /etc/logulife
 
-RUN BUILD_DEPS='build-essential python3-dev' \
-	&& apt-get update && apt-get install -y --no-install-recommends ${BUILD_DEPS} \
-	&& pip3 install --no-cache-dir -I -r /var/www/app/requirements.txt \
+RUN pip3 install --no-cache-dir -I -r /var/www/app/requirements.txt \
 	&& chown -R www-data:www-data /var/www/app /var/log/logulife \
 	&& apt-get autoremove -y ${BUILD_DEPS} \
 	&& apt-get clean \
