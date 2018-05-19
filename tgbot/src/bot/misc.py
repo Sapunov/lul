@@ -34,5 +34,11 @@ def save_json(filename, data):
         full_path += '_{0}'.format(uniq_counter)
         uniq_counter += 1
 
-    with open(full_path, 'w') as fid:
-        json.dump(data, fid)
+    if isinstance(data, str):
+        with open(full_path, 'w') as fid:
+            fid.write(data)
+    elif isinstance(data, dict):
+        with open(full_path, 'w') as fid:
+            json.dump(data, fid)
+    else:
+        raise TypeError('Data must be if type str or dict')
