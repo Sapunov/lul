@@ -6,7 +6,7 @@ APP_GROUP_NAME = 'logulife'
 
 APP_NAME = 'web'
 
-VERSION = '0.0.2'
+VERSION = '0.0.3'
 
 ETC = '/etc'
 

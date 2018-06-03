@@ -46,6 +46,7 @@ class RecordSerializer(serializers.Serializer):
 
     label = serializers.CharField(read_only=True)
     label_confirmed = serializers.BooleanField(read_only=True)
+    prediction_confidence = serializers.FloatField(read_only=True)
 
     def validate(self, data):
 
@@ -69,11 +70,22 @@ class RecordSerializer(serializers.Serializer):
         except IntegrityError:
             raise exceptions.LogulifeException('Запись с переданными параметрами уже существует')
 
+        label = record.predict_label()
+        log.debug('Predicted label for %s is `%s`', record, label)
+
+        entities = record.extract_entities()
+        log.debug('Extracted entities from %s: %s', record, entities)
+
         return record
 
     def update(self, instance, validated_data):
 
         instance.text = validated_data['text']
         instance.save()
+
+        label = instance.predict_label()
+        log.debug('Predicted label for %s is `%s`', instance, label)
+        entities = instance.extract_entities()
+        log.debug('Extracted entities from %s: %s', instance, entities)
 
         return instance

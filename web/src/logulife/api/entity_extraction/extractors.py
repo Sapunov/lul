@@ -54,9 +54,8 @@ class BaseEntity:
 
     def __str__(self):
 
-        prohibited = set(['start', 'end', 'entity_name'])
         attrs = self.get_attrs()
-        attrs_keys = sorted(set(attrs.keys()) - prohibited)
+        attrs_keys = sorted(attrs.keys())
 
         return "<{0}: {1}>".format(
             self.entity_name,
@@ -68,7 +67,13 @@ class BaseEntity:
 
     def get_attrs(self):
 
-        return self.__dict__
+        prohibited = set(['start', 'end', 'entity_name'])
+        attrs = self.__dict__.copy()
+        for key in list(attrs.keys()):
+            if key in prohibited:
+                attrs.pop(key)
+
+        return attrs
 
 
 class NumberEntity(BaseEntity):

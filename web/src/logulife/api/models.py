@@ -1,3 +1,5 @@
+import json
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
@@ -5,6 +7,7 @@ from rest_framework.exceptions import NotFound
 
 from logulife.api import exceptions
 from logulife.api import classification
+from logulife.api import entity_extraction
 
 
 class Source(models.Model):
@@ -15,7 +18,6 @@ class Source(models.Model):
     class Meta:
 
         unique_together = ('name', 'owner')
-
 
     @classmethod
     def get_source(cls, name, owner):
@@ -38,6 +40,24 @@ class Source(models.Model):
         return self.__str__()
 
 
+class Entity(models.Model):
+
+    record = models.ForeignKey(
+        'Record', on_delete=models.CASCADE, related_name='entities')
+    name = models.CharField(max_length=50)
+    entity_data = models.TextField()
+
+    class Meta:
+
+        verbose_name_plural = 'Entities'
+
+    @property
+    def entity_attrs(self):
+
+        data = json.loads(self.entity_data)
+        return data
+
+
 class Record(models.Model):
 
     text = models.CharField(max_length=1000)
@@ -50,6 +70,7 @@ class Record(models.Model):
     source_record_id = models.IntegerField()
     timestamp = models.DateTimeField()
     label = models.CharField(max_length=100, blank=True, null=True)
+    prediction_confidence = models.FloatField(default=0.0)
     label_confirmed = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
@@ -66,10 +87,31 @@ class Record(models.Model):
     def predict_label(self):
 
         results = classification.text.predict_label(self.text)
-        self.label = results[0][0]
-        self.save()
+        top_result = results[0]
+        label, confidence = top_result
 
-        return self.label
+        if not self.label_confirmed:
+            self.label = label
+            self.prediction_confidence = confidence
+            self.save()
+
+        return top_result
+
+    def extract_entities(self):
+
+        # Delete old entities before
+        for entity in self.entities.all():
+            entity.delete()
+
+        entities = entity_extraction.extract_entities(self.text)
+        for entity in entities:
+            attrs = json.dumps(entity.get_attrs())
+            Entity.objects.create(
+                record=self,
+                name=entity.entity_name,
+                entity_data=attrs)
+
+        return entities
 
     @classmethod
     def get_record(cls, user, source_name, source_record_id):

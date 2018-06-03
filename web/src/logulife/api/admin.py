@@ -16,5 +16,12 @@ class RecordAdmin(admin.ModelAdmin):
     readonly_fields = ('id', 'timestamp')
 
 
+class EntityAdmin(admin.ModelAdmin):
+
+    list_display = ('id', 'record', 'name')
+    ordering = ('-id',)
+
+
 admin.site.register(models.Source, SourceAdmin)
 admin.site.register(models.Record, RecordAdmin)
+admin.site.register(models.Entity, EntityAdmin)
