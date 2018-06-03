@@ -2,12 +2,13 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import path, include
 
-from logulife.web import views as web_views
+from logulife.web.views import index
 
 
 urlpatterns = [
     path('api/', include('logulife.api.urls')),
-    path('<path>', web_views.index)
+    path('<path>', index),
+    path('', index)
 ]
 
 if settings.ADMIN_ENABLED:
