@@ -181,3 +181,5 @@ LOGGING = {
 STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'static')
 
 DEFAULT_CURRENCY = 'rub'
+
+LABEL_CLASSIFICATION_THRESHOLD = 0.8

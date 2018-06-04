@@ -11,7 +11,10 @@ class SourceAdmin(admin.ModelAdmin):
 
 class RecordAdmin(admin.ModelAdmin):
 
-    list_display = ('text', 'timestamp', 'owner', 'source', 'id', 'label', 'label_confirmed')
+    list_display = (
+        'text', 'timestamp', 'owner',
+        'source', 'id', 'label',
+        'label_confirmed', 'prediction_confidence')
     ordering = ('-id',)
     readonly_fields = ('id', 'timestamp')
 

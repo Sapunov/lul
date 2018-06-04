@@ -76,7 +76,7 @@ class RecordSerializer(serializers.Serializer):
         entities = record.extract_entities()
         log.debug('Extracted entities from %s: %s', record, entities)
 
-        record.send_notifications()
+        record.notify_apps()
 
         return record
 
@@ -89,5 +89,7 @@ class RecordSerializer(serializers.Serializer):
         log.debug('Predicted label for %s is `%s`', instance, label)
         entities = instance.extract_entities()
         log.debug('Extracted entities from %s: %s', instance, entities)
+
+        record.notify_apps()
 
         return instance

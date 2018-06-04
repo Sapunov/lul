@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
 from rest_framework.exceptions import NotFound
+from django.conf import settings
 
 from logulife.api import exceptions
 from logulife.api import classification
@@ -93,7 +94,11 @@ class Record(models.Model):
 
         if not self.label_confirmed:
             self.label = label
-            self.prediction_confidence = confidence
+            self.prediction_confidence = round(confidence, 4)
+
+            if self.prediction_confidence >= settings.LABEL_CLASSIFICATION_THRESHOLD:
+                self.label_confirmed = True
+
             self.save()
 
         return top_result
@@ -144,10 +149,10 @@ class Record(models.Model):
 
             classification.text.learn(text_records, labels)
 
-    def send_notifications(self):
+    def notify_apps(self):
 
-        # TODO: обработка label_confirmed
-        ready_to_process.send(sender=Record, instance=self)
+        if self.label_confirmed:
+            ready_to_process.send(sender=Record, instance=self)
 
     def __str__(self):
 
