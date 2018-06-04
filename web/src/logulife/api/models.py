@@ -8,6 +8,7 @@ from rest_framework.exceptions import NotFound
 from logulife.api import exceptions
 from logulife.api import classification
 from logulife.api import entity_extraction
+from logulife.api.signals import ready_to_process
 
 
 class Source(models.Model):
@@ -142,6 +143,11 @@ class Record(models.Model):
                 labels.append(record.label)
 
             classification.text.learn(text_records, labels)
+
+    def send_notifications(self):
+
+        # TODO: обработка label_confirmed
+        ready_to_process.send(sender=Record, instance=self)
 
     def __str__(self):
 

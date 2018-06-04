@@ -50,7 +50,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'logulife.api',
     'logulife.web',
-    'logulife.spender'
+    'logulife.spender.apps.SpenderConfig'
 ]
 
 MIDDLEWARE = [
@@ -179,3 +179,5 @@ LOGGING = {
 }
 
 STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'static')
+
+DEFAULT_CURRENCY = 'rub'

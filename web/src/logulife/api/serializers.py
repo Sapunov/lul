@@ -76,6 +76,8 @@ class RecordSerializer(serializers.Serializer):
         entities = record.extract_entities()
         log.debug('Extracted entities from %s: %s', record, entities)
 
+        record.send_notifications()
+
         return record
 
     def update(self, instance, validated_data):

@@ -2,4 +2,9 @@ from django.apps import AppConfig
 
 
 class SpenderConfig(AppConfig):
-    name = 'spender'
+
+    name = 'logulife.spender'
+
+    def ready(self):
+
+        from logulife.spender import signals
