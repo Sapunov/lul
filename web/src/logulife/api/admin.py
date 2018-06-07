@@ -17,6 +17,7 @@ class RecordAdmin(admin.ModelAdmin):
         'label_confirmed', 'prediction_confidence')
     ordering = ('-id',)
     readonly_fields = ('id', 'timestamp')
+    exclude = ('label_prediction_results',)
 
 
 class EntityAdmin(admin.ModelAdmin):

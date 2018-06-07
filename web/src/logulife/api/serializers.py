@@ -76,7 +76,7 @@ class RecordSerializer(serializers.Serializer):
         entities = record.extract_entities()
         log.debug('Extracted entities from %s: %s', record, entities)
 
-        record.notify_apps()
+        record.notify_listeners()
 
         return record
 
@@ -90,6 +90,6 @@ class RecordSerializer(serializers.Serializer):
         entities = instance.extract_entities()
         log.debug('Extracted entities from %s: %s', instance, entities)
 
-        record.notify_apps()
+        instance.notify_listeners()
 
         return instance

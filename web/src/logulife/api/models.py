@@ -76,6 +76,18 @@ class Entity(models.Model):
         return self.__str__()
 
 
+class LabelPredictionResult(models.Model):
+
+    label = models.CharField(max_length=100)
+    confidence = models.FloatField()
+
+    def __str__(self):
+
+        return '<PredictionResult: label={0}; confidence={1}>'.format(
+            self.label,
+            self.confidence)
+
+
 class Record(models.Model):
 
     text = models.CharField(max_length=1000)
@@ -84,12 +96,12 @@ class Record(models.Model):
     # удалять их нельзя никогда
     owner = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     source = models.ForeignKey(Source, null=True, on_delete=models.SET_NULL)
-
     source_record_id = models.IntegerField()
     timestamp = models.DateTimeField()
     label = models.CharField(max_length=100, blank=True, null=True)
     prediction_confidence = models.FloatField(default=0.0)
     label_confirmed = models.BooleanField(default=False)
+    label_prediction_results = models.ManyToManyField(LabelPredictionResult)
 
     def save(self, *args, **kwargs):
 
@@ -105,6 +117,13 @@ class Record(models.Model):
     def predict_label(self):
 
         results = classification.text.predict_label(self.text)
+        results_to_save = min(3, len(results))
+
+        for i in range(results_to_save):
+            LabelPredictionResult.objects.create(
+                label=results[i][0],
+                confidence=round(results[i][1], 4))
+
         top_result = results[0]
         label, confidence = top_result
 
@@ -165,10 +184,9 @@ class Record(models.Model):
 
             classification.text.learn(text_records, labels)
 
-    def notify_apps(self):
+    def notify_listeners(self):
 
-        if self.label_confirmed:
-            ready_to_process.send(sender=Record, instance=self)
+        ready_to_process.send(sender=Record, instance=self)
 
     def __str__(self):
 
