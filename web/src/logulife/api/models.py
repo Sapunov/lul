@@ -47,7 +47,15 @@ class Entity(models.Model):
     record = models.ForeignKey(
         'Record', on_delete=models.CASCADE, related_name='entities')
     name = models.CharField(max_length=50)
+    raw = models.CharField(max_length=200, blank=True)
     entity_data = models.TextField()
+
+    def save(self, *args, **kwargs):
+
+        if not self.pk:
+            self.raw = json.loads(self.entity_data)['raw']
+
+        super().save(*args, **kwargs)
 
     class Meta:
 
@@ -58,6 +66,14 @@ class Entity(models.Model):
 
         data = json.loads(self.entity_data)
         return data
+
+    def __str__(self):
+
+        return '<Entity: {0}>'.format(self.raw)
+
+    def __repr__(self):
+
+        return self.__str__()
 
 
 class Record(models.Model):
