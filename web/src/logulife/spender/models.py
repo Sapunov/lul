@@ -26,7 +26,7 @@ class Transaction(models.Model):
         raise ValueError('User create_transaction instead of this method')
 
     @classmethod
-    def create_transaction(cls, record, amount, direction, category=None, currency=None):
+    def create_transaction(cls, record, amount, direction, currency=None):
 
         integer_, decimal_ = split_float(amount)
         currency = currency if currency is not None else settings.DEFAULT_CURRENCY
@@ -36,5 +36,16 @@ class Transaction(models.Model):
             amount_int=integer_,
             amount_decimal=decimal_,
             direction=direction,
-            category=category,
             currency=currency)
+
+    def edit_transaction(self, amount, direction, currency=None):
+
+        integer_, decimal_ = split_float(amount)
+        currency = currency if currency is not None else settings.DEFAULT_CURRENCY
+
+        self.amount_int = integer_
+        self.amount_decimal = decimal_
+        self.direction = direction
+        self.currency = currency
+
+        self.save()
