@@ -4,10 +4,12 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
 from rest_framework.exceptions import NotFound
+from django.conf import settings
 
 from logulife.api import exceptions
 from logulife.api import classification
 from logulife.api import entity_extraction
+from logulife.api.signals import ready_to_process
 
 
 class Source(models.Model):
@@ -45,7 +47,15 @@ class Entity(models.Model):
     record = models.ForeignKey(
         'Record', on_delete=models.CASCADE, related_name='entities')
     name = models.CharField(max_length=50)
+    raw = models.CharField(max_length=200, blank=True)
     entity_data = models.TextField()
+
+    def save(self, *args, **kwargs):
+
+        if not self.pk:
+            self.raw = json.loads(self.entity_data)['raw']
+
+        super().save(*args, **kwargs)
 
     class Meta:
 
@@ -56,6 +66,14 @@ class Entity(models.Model):
 
         data = json.loads(self.entity_data)
         return data
+
+    def __str__(self):
+
+        return '<Entity: {0}>'.format(self.raw)
+
+    def __repr__(self):
+
+        return self.__str__()
 
 
 class Record(models.Model):
@@ -92,7 +110,11 @@ class Record(models.Model):
 
         if not self.label_confirmed:
             self.label = label
-            self.prediction_confidence = confidence
+            self.prediction_confidence = round(confidence, 4)
+
+            if self.prediction_confidence >= settings.LABEL_CLASSIFICATION_THRESHOLD:
+                self.label_confirmed = True
+
             self.save()
 
         return top_result
@@ -142,6 +164,11 @@ class Record(models.Model):
                 labels.append(record.label)
 
             classification.text.learn(text_records, labels)
+
+    def notify_apps(self):
+
+        if self.label_confirmed:
+            ready_to_process.send(sender=Record, instance=self)
 
     def __str__(self):
 

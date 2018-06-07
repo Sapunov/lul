@@ -1,11 +1,12 @@
 certifi==2018.4.16
 chardet==3.0.4
-Django==2.0.4
+Django==2.0.6
 djangorestframework==3.8.2
 future==0.16.0
+gunicorn==19.7.1
 idna==2.6
 nltk==3.2.5
-numpy==1.14.2
+numpy==1.14.3
 psycopg2-binary==2.7.4
 pytz==2018.4
 requests==2.18.4
@@ -14,4 +15,3 @@ scipy==1.0.1
 six==1.11.0
 sklearn==0.0
 urllib3==1.22
-gunicorn==19.7.1

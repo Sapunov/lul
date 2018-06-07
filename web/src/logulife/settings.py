@@ -6,7 +6,7 @@ APP_GROUP_NAME = 'logulife'
 
 APP_NAME = 'web'
 
-VERSION = '0.0.3'
+VERSION = '0.0.4'
 
 ETC = '/etc'
 
@@ -49,7 +49,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'logulife.api',
-    'logulife.web'
+    'logulife.web',
+    'logulife.spender.apps.SpenderConfig'
 ]
 
 MIDDLEWARE = [
@@ -178,3 +179,7 @@ LOGGING = {
 }
 
 STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'static')
+
+DEFAULT_CURRENCY = 'rub'
+
+LABEL_CLASSIFICATION_THRESHOLD = 0.8
