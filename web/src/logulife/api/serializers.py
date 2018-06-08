@@ -28,6 +28,14 @@ class SourceSerializer(serializers.Serializer):
     owner = UserSerializer(read_only=True)
 
 
+class LabelPredictionResultSerializer(serializers.ModelSerializer):
+
+    class Meta:
+
+        model = models.LabelPredictionResult
+        fields = '__all__'
+
+
 class RecordSerializer(serializers.Serializer):
 
     id = serializers.IntegerField(read_only=True)
@@ -36,6 +44,7 @@ class RecordSerializer(serializers.Serializer):
     source = SourceSerializer(read_only=True)
     source_name = serializers.CharField(write_only=True)
     source_record_id = serializers.IntegerField(required=True)
+    label_prediction_results = LabelPredictionResultSerializer(read_only=True, many=True)
 
     # Если пустое, взять текущее время
     timestamp = serializers.DateTimeField(

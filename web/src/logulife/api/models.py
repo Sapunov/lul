@@ -78,6 +78,8 @@ class Entity(models.Model):
 
 class LabelPredictionResult(models.Model):
 
+    record = models.ForeignKey('Record',
+        on_delete=models.CASCADE, related_name='label_prediction_results', null=True)
     label = models.CharField(max_length=100)
     confidence = models.FloatField()
 
@@ -101,7 +103,6 @@ class Record(models.Model):
     label = models.CharField(max_length=100, blank=True, null=True)
     prediction_confidence = models.FloatField(default=0.0)
     label_confirmed = models.BooleanField(default=False)
-    label_prediction_results = models.ManyToManyField(LabelPredictionResult)
 
     def save(self, *args, **kwargs):
 
@@ -121,6 +122,7 @@ class Record(models.Model):
 
         for i in range(results_to_save):
             LabelPredictionResult.objects.create(
+                record=self,
                 label=results[i][0],
                 confidence=round(results[i][1], 4))
 

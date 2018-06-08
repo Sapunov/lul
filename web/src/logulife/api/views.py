@@ -10,6 +10,13 @@ class Records(APIView):
 
     serializer_class = serializers.RecordSerializer
 
+    def get(self, request):
+
+        records = models.Record.objects.filter(owner=request.user)
+        serializer = serialize(self.serializer_class, records, many=True)
+
+        return Response(serializer.data)
+
     def post(self, request):
 
         serializer = deserialize(
