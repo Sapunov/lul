@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from logulife.spender import models
+from .models import Transaction
 
 
 class TransactionAdmin(admin.ModelAdmin):
@@ -11,4 +11,4 @@ class TransactionAdmin(admin.ModelAdmin):
     ordering = ('-id',)
 
 
-admin.site.register(models.Transaction, TransactionAdmin)
+admin.site.register(Transaction, TransactionAdmin)

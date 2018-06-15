@@ -7,4 +7,4 @@ class SpenderConfig(AppConfig):
 
     def ready(self):
 
-        from logulife.spender import signals
+        from . import signals

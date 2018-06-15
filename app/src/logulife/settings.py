@@ -4,7 +4,7 @@ import os
 
 APP_GROUP_NAME = 'logulife'
 
-APP_NAME = 'web'
+APP_NAME = 'app'
 
 VERSION = '0.0.4'
 
@@ -48,9 +48,9 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'rest_framework.authtoken',
-    'logulife.api',
+    'logulife.records',
+    'logulife.spender.apps.SpenderConfig',
     'logulife.web',
-    'logulife.spender.apps.SpenderConfig'
 ]
 
 MIDDLEWARE = [
@@ -65,6 +65,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'logulife.urls'
+
+APPEND_SLASH = False
 
 TEMPLATES = [
     {

@@ -1,18 +1,18 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from logulife.api import serializers
+from .serializers import RecordSerializer
 from logulife.common import serialize, deserialize
-from logulife.api import models
+from .models import Record
 
 
 class Records(APIView):
 
-    serializer_class = serializers.RecordSerializer
+    serializer_class = RecordSerializer
 
     def get(self, request):
 
-        records = models.Record.objects.filter(owner=request.user)
+        records = Record.objects.filter(owner=request.user)
         serializer = serialize(self.serializer_class, records, many=True)
 
         return Response(serializer.data)
@@ -32,7 +32,7 @@ class Records(APIView):
         # Для проверки всех обязательных полей
         deserialize(self.serializer_class, request.data)
 
-        record = models.Record.get_record(
+        record = Record.get_record(
             request.user,
             request.data['source_name'],
             request.data['source_record_id'])

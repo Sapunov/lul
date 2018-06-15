@@ -4,9 +4,9 @@ from django.db.utils import IntegrityError
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from logulife.api import misc
-from logulife.api import exceptions
-from logulife.api import models
+from . import misc
+from . import exceptions
+from .models import LabelPredictionResult, Source, Record
 from logulife.common import serialize, deserialize, get_logger
 
 
@@ -32,8 +32,8 @@ class LabelPredictionResultSerializer(serializers.ModelSerializer):
 
     class Meta:
 
-        model = models.LabelPredictionResult
-        fields = '__all__'
+        model = LabelPredictionResult
+        fields = ('label', 'confidence')
 
 
 class RecordSerializer(serializers.Serializer):
@@ -68,14 +68,14 @@ class RecordSerializer(serializers.Serializer):
 
         validated_data['owner'] = self.context.get('request').user
 
-        validated_data['source'] = models.Source.get_source(
+        validated_data['source'] = Source.get_source(
             name=validated_data.pop('source_name'),
             owner=validated_data['owner'])
 
         log.debug('Creating new record with: %s', validated_data)
 
         try:
-            record = models.Record.objects.create(**validated_data)
+            record = Record.objects.create(**validated_data)
         except IntegrityError:
             raise exceptions.LogulifeException('Запись с переданными параметрами уже существует')
 

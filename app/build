@@ -1,7 +1,7 @@
 #!/bin/bash
 
 BUILD_DIR=_build
-SERVICE_NAME=logulife_web
+SERVICE_NAME=logulife_app
 
 
 #

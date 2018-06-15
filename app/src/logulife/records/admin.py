@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from logulife.api import models
+from .models import Source, Record, Entity
 
 
 class SourceAdmin(admin.ModelAdmin):
@@ -26,6 +26,6 @@ class EntityAdmin(admin.ModelAdmin):
     ordering = ('-id',)
 
 
-admin.site.register(models.Source, SourceAdmin)
-admin.site.register(models.Record, RecordAdmin)
-admin.site.register(models.Entity, EntityAdmin)
+admin.site.register(Source, SourceAdmin)
+admin.site.register(Record, RecordAdmin)
+admin.site.register(Entity, EntityAdmin)

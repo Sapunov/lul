@@ -7,4 +7,5 @@ sudo docker run --name logulife_postgres \
 	-e POSTGRES_PASSWORD=$PASSWORD \
 	-v logulife-pgdata:/var/lib/postgresql/data \
 	-p 5432:5432 \
+	--network logulife \
 	-d logulife_postgres:latest

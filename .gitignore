@@ -1,6 +1,6 @@
-env
+_env
 .ipynb_checkpoints/
 __pycache__/
 .vscode
-sandbox/
+_sandbox/
 .DS_Store

@@ -6,10 +6,10 @@ from django.utils import timezone
 from rest_framework.exceptions import NotFound
 from django.conf import settings
 
-from logulife.api import exceptions
-from logulife.api import classification
-from logulife.api import entity_extraction
-from logulife.api.signals import ready_to_process
+from . import exceptions
+from . import classification
+from . import entity_extraction
+from .signals import ready_to_process
 
 
 class Source(models.Model):
