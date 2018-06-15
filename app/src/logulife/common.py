@@ -3,25 +3,6 @@ import logging
 from django.conf import settings
 
 
-def deserialize(serializer_class, data, **kwargs):
-
-    serializer = serializer_class(data=data, **kwargs)
-    serializer.is_valid(raise_exception=True)
-
-    return serializer
-
-
-def serialize(serializer_class, instance, data=None, **kwargs):
-
-    if data is None:
-        serializer = serializer_class(instance, **kwargs)
-    else:
-        serializer = serializer_class(instance, data=data, **kwargs)
-        serializer.is_valid(raise_exception=True)
-
-    return serializer
-
-
 def get_logger(name):
 
     return logging.getLogger(settings.APP_GROUP_NAME + '.' + name)

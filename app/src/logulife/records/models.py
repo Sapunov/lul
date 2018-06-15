@@ -17,21 +17,17 @@ class Source(models.Model):
     name = models.CharField(max_length=100)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    @classmethod
+    def get_or_create_default(cls, user):
+
+        source, _ = cls.objects.get_or_create(
+            owner=user, name=settings.DEFAULT_SOURCE_NAME)
+
+        return source
+
     class Meta:
 
         unique_together = ('name', 'owner')
-
-    @classmethod
-    def get_source(cls, name, owner):
-
-        try:
-            source = cls.objects.get(name=name.lower(), owner=owner)
-        except cls.DoesNotExist:
-            raise exceptions.LogulifeException(
-                'Источник данных `{0}` не существует у пользователя `{1}`'.format(
-                    name, owner.username))
-
-        return source
 
     def __str__(self):
 
@@ -93,52 +89,22 @@ class LabelPredictionResult(models.Model):
 class Record(models.Model):
 
     text = models.CharField(max_length=1000)
-
     # Так как записи представляют ценность для обучения классификатора,
     # удалять их нельзя никогда
     owner = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     source = models.ForeignKey(Source, null=True, on_delete=models.SET_NULL)
-    source_record_id = models.IntegerField()
+    ext_id = models.CharField(max_length=40, null=True)
     timestamp = models.DateTimeField()
     label = models.CharField(max_length=100, blank=True, null=True)
-    prediction_confidence = models.FloatField(default=0.0)
     label_confirmed = models.BooleanField(default=False)
-
-    def save(self, *args, **kwargs):
-
-        if not self.timestamp:
-            self.timestamp = timezone.now()
-
-        return super(Record, self).save(*args, **kwargs)
 
     class Meta:
 
-        unique_together = ('source', 'source_record_id')
+        unique_together = ('source', 'ext_id')
 
     def predict_label(self):
 
-        results = classification.text.predict_label(self.text)
-        results_to_save = min(3, len(results))
-
-        for i in range(results_to_save):
-            LabelPredictionResult.objects.create(
-                record=self,
-                label=results[i][0],
-                confidence=round(results[i][1], 4))
-
-        top_result = results[0]
-        label, confidence = top_result
-
-        if not self.label_confirmed:
-            self.label = label
-            self.prediction_confidence = round(confidence, 4)
-
-            if self.prediction_confidence >= settings.LABEL_CLASSIFICATION_THRESHOLD:
-                self.label_confirmed = True
-
-            self.save()
-
-        return top_result
+        pass
 
     def extract_entities(self):
 
@@ -155,21 +121,6 @@ class Record(models.Model):
                 entity_data=attrs)
 
         return entities
-
-    @classmethod
-    def get_record(cls, user, source_name, source_record_id):
-
-        source = Source.get_source(owner=user, name=source_name)
-
-        try:
-            record = cls.objects.get(
-                owner=user,
-                source=source,
-                source_record_id=source_record_id)
-        except cls.DoesNotExist:
-            raise NotFound('Запись не существует')
-
-        return record
 
     @classmethod
     def learn_from_records(cls):

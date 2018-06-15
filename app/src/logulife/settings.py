@@ -140,8 +140,6 @@ REST_FRAMEWORK = {
     )
 }
 
-DATETIME_FORMAT = '%d.%m.%Y %H:%M:%S'
-
 ADMIN_ENABLED = True
 
 LOGGING = {
@@ -181,6 +179,10 @@ LOGGING = {
 }
 
 STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'static')
+
+DEFAULT_SOURCE_NAME = 'native'
+
+ALLOWED_LABELS = ('costs', 'income', 'time', 'other')
 
 DEFAULT_CURRENCY = 'rub'
 
