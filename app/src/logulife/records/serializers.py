@@ -2,14 +2,14 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.utils import IntegrityError
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, NotFound
 from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
 
-from . import exceptions
-from . import misc
-from .models import LabelPredictionResult, Source, Record
 from logulife.common import get_logger
+from logulife.records import misc
+from logulife.records.models import (
+    LabelsPredicted, Source, Record)
 
 
 log = get_logger(__name__)
@@ -23,11 +23,11 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('id', 'username', 'first_name', 'last_name')
 
 
-class LabelPredictionResultSerializer(serializers.ModelSerializer):
+class LabelsPredictedSerializer(serializers.ModelSerializer):
 
     class Meta:
 
-        model = LabelPredictionResult
+        model = LabelsPredicted
         fields = ('label', 'confidence')
 
 
@@ -35,12 +35,12 @@ class RecordSerializer(serializers.ModelSerializer):
 
     source = serializers.SlugRelatedField(slug_field='name', read_only=True)
     owner = UserSerializer()
-    label_prediction_results = LabelPredictionResultSerializer(many=True)
+    labels_predicted = LabelsPredictedSerializer(many=True)
 
     class Meta:
 
         model = Record
-        fields = '__all__'
+        exclude = ('deleted',)
 
 
 class RecordCreateSerializer(serializers.Serializer):
@@ -94,4 +94,39 @@ class RecordCreateSerializer(serializers.Serializer):
     def create(self, validated_data):
 
         record = Record.objects.create(**validated_data)
+        return record
+
+
+class RecordIdSerializer(serializers.Serializer):
+
+    record_id = serializers.CharField(write_only=True)
+
+    def validate(self, attrs):
+
+        record_id = attrs['record_id']
+
+        try:
+            record = Record.get_record_by_id(
+                record_id, self.context['request'].user)
+        except ValueError as exc:
+            raise ValidationError({'record_id': str(exc)})
+        except Record.DoesNotExist:
+            raise NotFound()
+
+        attrs['record'] = record
+
+        return attrs
+
+
+class RecordUpdateDeleteSerializer(RecordIdSerializer):
+
+    text = serializers.CharField()
+
+    def create(self, validated_data):
+
+        record = validated_data['record']
+        record.text = validated_data['text']
+
+        record.save()
+
         return record

@@ -14,8 +14,8 @@ class RecordAdmin(admin.ModelAdmin):
     list_display = (
         'text', 'timestamp', 'owner',
         'source', 'id', 'label',
-        'label_confirmed')
-    ordering = ('-id',)
+        'label_confirmed', 'deleted')
+    ordering = ('-timestamp',)
     readonly_fields = ('id', 'timestamp')
     exclude = ('label_prediction_results',)
 

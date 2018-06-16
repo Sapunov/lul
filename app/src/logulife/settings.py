@@ -137,7 +137,9 @@ REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'logulife.rest.api_exception_handler',
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
-    )
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 10
 }
 
 ADMIN_ENABLED = True

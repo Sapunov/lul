@@ -1,15 +1,19 @@
 import json
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
+from django.utils.translation import ugettext_lazy as _
 from rest_framework.exceptions import NotFound
-from django.conf import settings
 
-from . import exceptions
-from . import classification
-from . import entity_extraction
-from .signals import ready_to_process
+from logulife.common import get_logger
+from logulife.records import classification
+from logulife.records import entity_extraction
+from logulife.records.signals import ready_to_process
+
+
+log = get_logger(__file__)
 
 
 class Source(models.Model):
@@ -20,7 +24,7 @@ class Source(models.Model):
     @classmethod
     def get_or_create_default(cls, user):
 
-        source, _ = cls.objects.get_or_create(
+        source, _created = cls.objects.get_or_create(
             owner=user, name=settings.DEFAULT_SOURCE_NAME)
 
         return source
@@ -72,16 +76,16 @@ class Entity(models.Model):
         return self.__str__()
 
 
-class LabelPredictionResult(models.Model):
+class LabelsPredicted(models.Model):
 
     record = models.ForeignKey('Record',
-        on_delete=models.CASCADE, related_name='label_prediction_results', null=True)
+        on_delete=models.CASCADE, related_name='labels_predicted', null=True)
     label = models.CharField(max_length=100)
     confidence = models.FloatField()
 
     def __str__(self):
 
-        return '<PredictionResult: label={0}; confidence={1}>'.format(
+        return '<LabelsPredicted: label={0}; confidence={1}>'.format(
             self.label,
             self.confidence)
 
@@ -97,10 +101,42 @@ class Record(models.Model):
     timestamp = models.DateTimeField()
     label = models.CharField(max_length=100, blank=True, null=True)
     label_confirmed = models.BooleanField(default=False)
+    deleted = models.BooleanField(default=False)
 
     class Meta:
 
         unique_together = ('source', 'ext_id')
+
+    @classmethod
+    def get_record_by_id(cls, record_id, user):
+
+        log.debug('Trying to get record with record_id:%s, user:%s', record_id, user)
+
+        if '_' in record_id:
+            try:
+                source_name, ext_id = record_id.split('_')
+            except ValueError:
+                raise ValueError(
+                    _('Wrong record id. Right pattern: <source>_<record_id>'))
+        else:
+            source_name = settings.DEFAULT_SOURCE_NAME
+            try:
+                ext_id = int(record_id)
+            except ValueError:
+                raise ValueError(_('Record id must be of type int'))
+
+        if source_name == settings.DEFAULT_SOURCE_NAME:
+            record = cls.objects.get(owner=user, pk=ext_id, deleted=False)
+        else:
+            record = cls.objects.get(
+                owner=user, source__name=source_name, ext_id=ext_id, deleted=False)
+
+        return record
+
+    def archive_record(self):
+
+        self.deleted = True
+        self.save()
 
     def predict_label(self):
 
