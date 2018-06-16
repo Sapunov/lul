@@ -1,4 +1,5 @@
-from rest_framework.generics import GenericAPIView
+from django.conf import settings
+from rest_framework.generics import GenericAPIView, ListAPIView
 from rest_framework.response import Response
 
 from logulife.common import get_logger
@@ -86,3 +87,10 @@ class SingleRecordView(GenericAPIView):
         record.archive_record()
 
         return Response({'deleted': True})
+
+
+class RecordsLabelsListView(GenericAPIView):
+
+    def get(self, request):
+
+        return Response({'labels': settings.ALLOWED_LABELS})
