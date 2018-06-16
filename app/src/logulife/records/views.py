@@ -26,6 +26,7 @@ class RecordsView(GenericAPIView):
 
         if 'source' in request.query_params:
             filters.update({'source__name': request.query_params['source']})
+
         if 'labels' in request.query_params:
             labels = [l for l in request.query_params['labels'].split(',') if l]
             if labels:
@@ -35,9 +36,13 @@ class RecordsView(GenericAPIView):
                     filters.update({'label__isnull': True})
                 else:
                     filters.update({'label__in': labels})
+
         if 'label_confirmed' in request.query_params:
             label_confirmed = is_true(request.query_params['label_confirmed'])
             filters.update({'label_confirmed': label_confirmed})
+
+        if 'q' in request.query_params:
+            filters.update({'text__icontains': request.query_params['q']})
 
         records = Record.objects.filter(**filters).order_by('-timestamp')
 
