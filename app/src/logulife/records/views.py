@@ -151,6 +151,7 @@ class LableSetView(GenericAPIView):
         record = serializer.validated_data['record']
 
         record.set_label(label, confirm=True)
+        record.notify_update()
 
         return Response({'label': label, 'label_confirmed': True})
 
@@ -168,5 +169,6 @@ class LabelConfirmView(GenericAPIView):
         record = serializer.validated_data['record']
 
         record.set_label(label, confirm=True)
+        record.notify_update()
 
         return Response({'label': label, 'label_confirmed': True})

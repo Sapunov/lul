@@ -191,3 +191,11 @@ DEFAULT_CURRENCY = 'rub'
 LABEL_CLASSIFICATION_THRESHOLD = 0.9
 
 SAVED_PREDICTION_RESULTS = 3
+
+RECORDS_LISTENERS = {
+    'spender': {
+        'create': 'logulife.spender.views.record_create',
+        'update': 'logulife.spender.views.record_update',
+        'delete': 'logulife.spender.views.record_delete'
+    }
+}

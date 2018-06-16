@@ -10,6 +10,7 @@ from rest_framework.exceptions import NotFound
 from logulife.common import get_logger
 from logulife.records import classification
 from logulife.records import entity_extraction
+from logulife.records.misc import import_module_attr
 from logulife.records.signals import ready_to_process
 
 
@@ -178,6 +179,8 @@ class Record(models.Model):
 
     def predict_labels(self):
 
+        self.labels_predicted.all().delete()
+
         prediction_results = classification.text.predict_labels(self.text)
         labels_predicted = []
 
@@ -208,6 +211,8 @@ class Record(models.Model):
             for tag_text in to_add:
                 tag = Tag.get_or_create(tag_text)
                 self.tags.add(tag)
+        else:
+            self.tags.all().delete()
 
     def extract_entities(self):
 
@@ -239,15 +244,28 @@ class Record(models.Model):
 
     def notify_create(self):
 
-        pass
+        for listener, actions in settings.RECORDS_LISTENERS.items():
+            if 'create' in actions:
+                log.debug('Notifying %s that %s created', listener, self)
+                action_handler = import_module_attr(actions['create'])
+                action_handler(self)
+
 
     def notify_update(self):
 
-        pass
+        for listener, actions in settings.RECORDS_LISTENERS.items():
+            if 'update' in actions:
+                log.debug('Notifying %s that %s updated', listener, self)
+                action_handler = import_module_attr(actions['update'])
+                action_handler(self)
 
     def notify_delete(self):
 
-        pass
+        for listener, actions in settings.RECORDS_LISTENERS.items():
+            if 'delete' in actions:
+                log.debug('Notifying %s that %s deleted', listener, self)
+                action_handler = import_module_attr(actions['delete'])
+                action_handler(self.pk)
 
     def __str__(self):
 
