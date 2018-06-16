@@ -80,7 +80,7 @@ class Entity(models.Model):
 
     def __str__(self):
 
-        return '<Entity: {0}>'.format(self.raw)
+        return '<{0}: {1}>'.format(self.name, self.raw)
 
     def __repr__(self):
 
@@ -105,6 +105,19 @@ class LabelsPredicted(models.Model):
         return self.__str__()
 
 
+class Tag(models.Model):
+
+    text = models.CharField(max_length=100, primary_key=True)
+
+    @classmethod
+    def get_or_create(cls, tag_text):
+
+        tag_text = tag_text.lower().replace(' ', '_')
+        tag, _created = cls.objects.get_or_create(text=tag_text)
+
+        return tag
+
+
 class Record(models.Model):
 
     text = models.CharField(max_length=1000)
@@ -117,6 +130,7 @@ class Record(models.Model):
     label = models.CharField(max_length=100, blank=True, null=True)
     label_confirmed = models.BooleanField(default=False)
     deleted = models.BooleanField(default=False)
+    tags = models.ManyToManyField(Tag, related_name='+')
 
     class Meta:
 
@@ -178,6 +192,23 @@ class Record(models.Model):
 
         return labels_predicted
 
+    def _process_tags(self):
+
+        tag_entities = set(self.entities.filter(
+            name='TagEntity').values_list('value', flat=True))
+
+        if tag_entities:
+            current_tags = set(self.tags.all().values_list('text', flat=True))
+
+            to_delete = current_tags - tag_entities
+            to_add = tag_entities - current_tags
+
+            self.tags.filter(text__in=to_delete).delete()
+
+            for tag_text in to_add:
+                tag = Tag.get_or_create(tag_text)
+                self.tags.add(tag)
+
     def extract_entities(self):
 
         self.entities.all().delete() # Delete old entities before
@@ -186,6 +217,8 @@ class Record(models.Model):
         entities = []
         for entity in extracted_entities:
             entities.append(Entity.create_entity(self, entity))
+
+        self._process_tags()
 
         return entities
 

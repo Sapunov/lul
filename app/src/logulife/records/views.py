@@ -24,11 +24,13 @@ class RecordsView(GenericAPIView):
             'deleted': False
         }
 
-        if 'source' in request.query_params:
-            filters.update({'source__name': request.query_params['source']})
+        params = request.query_params
 
-        if 'labels' in request.query_params:
-            labels = [l for l in request.query_params['labels'].split(',') if l]
+        if 'source' in params:
+            filters.update({'source__name': params['source']})
+
+        if 'labels' in params:
+            labels = [l for l in params['labels'].split(',') if l]
             if labels:
                 if '_any' in labels:
                     filters.update({'label__isnull': False})
@@ -37,14 +39,29 @@ class RecordsView(GenericAPIView):
                 else:
                     filters.update({'label__in': labels})
 
-        if 'label_confirmed' in request.query_params:
-            label_confirmed = is_true(request.query_params['label_confirmed'])
+        if 'label_confirmed' in params:
+            label_confirmed = is_true(params['label_confirmed'])
             filters.update({'label_confirmed': label_confirmed})
 
-        if 'q' in request.query_params:
-            filters.update({'text__icontains': request.query_params['q']})
+        if 'q' in params:
+            filters.update({'text__icontains': params['q']})
 
         records = Record.objects.filter(**filters).order_by('-timestamp')
+
+        if 'tags' in params:
+            tags = [t.lower() for t in params['tags'].split(',') if t]
+            if tags:
+                if '_any' in tags:
+                    records = [r for r in records if r.tags.count() > 0]
+                elif '_none' in tags:
+                    records = [r for r in records if r.tags.count() == 0]
+                else:
+                    def tag_filter(record):
+                        record_tags = record.tags.all().values_list('text', flat=True)
+                        len_union = len(set(record_tags) & set(tags))
+                        return len_union == len(tags)
+
+                    records = list(filter(tag_filter, records))
 
         queryset = self.paginate_queryset(records)
         serializer = self.get_serializer(queryset, many=True)
