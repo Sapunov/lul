@@ -147,9 +147,19 @@ class Record(models.Model):
 
         self.save()
 
-    def predict_label(self):
+    def predict_labels(self):
 
-        pass
+        prediction_results = classification.text.predict_labels(self.text)
+        labels_predicted = []
+
+        for label, confidence in prediction_results[:settings.SAVED_PREDICTION_RESULTS]:
+            labels_predicted.append(LabelsPredicted.objects.create(
+                record=self, label=label, confidence=round(confidence, 4)))
+
+        top_result = labels_predicted[0]
+
+        if top_result.confidence > settings.LABEL_CLASSIFICATION_THRESHOLD:
+            self.set_label(top_result.label)
 
     def extract_entities(self):
 

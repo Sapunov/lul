@@ -7,6 +7,7 @@ from logulife.records.models import Record
 from logulife.records.serializers import (
     RecordSerializer, RecordCreateSerializer, RecordIdSerializer,
     RecordUpdateDeleteSerializer, LabelSetSerializer, LabelConfirmSerializer)
+from logulife.records.misc import is_true
 
 
 log = get_logger(__name__)
@@ -28,10 +29,15 @@ class RecordsView(GenericAPIView):
         if 'labels' in request.query_params:
             labels = [l for l in request.query_params['labels'].split(',') if l]
             if labels:
-                if '_' in labels:
-                    filters.update({'label': None})
+                if '_any' in labels:
+                    filters.update({'label__isnull': False})
+                elif '_none' in labels:
+                    filters.update({'label__isnull': True})
                 else:
                     filters.update({'label__in': labels})
+        if 'label_confirmed' in request.query_params:
+            label_confirmed = is_true(request.query_params['label_confirmed'])
+            filters.update({'label_confirmed': label_confirmed})
 
         records = Record.objects.filter(**filters).order_by('-timestamp')
 

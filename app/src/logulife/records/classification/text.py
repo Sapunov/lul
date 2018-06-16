@@ -45,7 +45,7 @@ def learn(records_list, labels_list):
         pickle.dump(model, file_opened)
 
 
-def predict_label(text):
+def predict_labels(text):
 
     with open(COUNT_VECTORIZER_FILENAME, 'rb') as file_opened:
         count_vect = pickle.load(file_opened)
@@ -56,9 +56,12 @@ def predict_label(text):
     with open(MODEL_FILENAME, 'rb') as file_opened:
         model = pickle.load(file_opened)
 
+    records = np.array([text])
+    records = preprocessing.preprocess_text_vector(records)
+
     labels = model.classes_.tolist()
     probas = model.predict_proba(
-        tfidf_trans.transform(count_vect.transform([text])))
+        tfidf_trans.transform(count_vect.transform(records)))
 
     results = list(zip(labels, probas[0]))
     results.sort(key=lambda it: it[1], reverse=True)

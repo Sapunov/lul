@@ -94,6 +94,9 @@ class RecordCreateSerializer(serializers.Serializer):
     def create(self, validated_data):
 
         record = Record.objects.create(**validated_data)
+
+        record.predict_labels()
+
         return record
 
 
