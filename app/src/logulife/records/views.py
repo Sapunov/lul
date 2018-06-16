@@ -18,15 +18,22 @@ class RecordsView(GenericAPIView):
 
     def get(self, request):
 
-        if 'source' in request.query_params:
-            records = Record.objects.filter(
-                owner=request.user,
-                source__name=request.query_params['source'],
-                deleted=False)
-        else:
-            records = Record.objects.filter(owner=request.user, deleted=False)
+        filters = {
+            'owner': request.user,
+            'deleted': False
+        }
 
-        records = records.order_by('-timestamp')
+        if 'source' in request.query_params:
+            filters.update({'source__name': request.query_params['source']})
+        if 'labels' in request.query_params:
+            labels = [l for l in request.query_params['labels'].split(',') if l]
+            if labels:
+                if '_' in labels:
+                    filters.update({'label': None})
+                else:
+                    filters.update({'label__in': labels})
+
+        records = Record.objects.filter(**filters).order_by('-timestamp')
 
         queryset = self.paginate_queryset(records)
         serializer = self.get_serializer(queryset, many=True)
