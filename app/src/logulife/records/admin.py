@@ -22,7 +22,7 @@ class RecordAdmin(admin.ModelAdmin):
 
 class EntityAdmin(admin.ModelAdmin):
 
-    list_display = ('raw', 'id', 'record', 'name')
+    list_display = ('raw', 'value', 'id', 'record', 'name')
     ordering = ('-id',)
 
 

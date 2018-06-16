@@ -9,7 +9,7 @@ from django.utils import timezone
 from logulife.common import get_logger
 from logulife.records import misc
 from logulife.records.models import (
-    LabelsPredicted, Source, Record)
+    LabelsPredicted, Source, Record, Entity)
 
 
 log = get_logger(__name__)
@@ -31,11 +31,31 @@ class LabelsPredictedSerializer(serializers.ModelSerializer):
         fields = ('label', 'confidence')
 
 
+class EntitySerializer(serializers.ModelSerializer):
+
+    class Meta:
+
+        model = Entity
+        exclude = ('id', 'record', 'entity_data')
+
+    def to_representation(self, entity):
+
+        result = super().to_representation(entity)
+        existing_keys = set(result.keys())
+
+        for attr_name, attr_value in entity.entity_attrs.items():
+            if attr_name not in existing_keys:
+                result[attr_name] = attr_value
+
+        return result
+
+
 class RecordSerializer(serializers.ModelSerializer):
 
     source = serializers.SlugRelatedField(slug_field='name', read_only=True)
     owner = UserSerializer()
     labels_predicted = LabelsPredictedSerializer(many=True)
+    entities = EntitySerializer(many=True)
 
     class Meta:
 
@@ -96,6 +116,7 @@ class RecordCreateSerializer(serializers.Serializer):
         record = Record.objects.create(**validated_data)
 
         record.predict_labels()
+        record.extract_entities()
 
         return record
 

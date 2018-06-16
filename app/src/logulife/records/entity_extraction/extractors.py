@@ -67,7 +67,10 @@ class BaseEntity:
 
     def get_attrs(self):
 
-        prohibited = set(['start', 'end', 'entity_name'])
+        prohibited = set([
+            'start', 'end', 'entity_name',
+            'span', 'size', 'raw',
+            'value'])
         attrs = self.__dict__.copy()
         for key in list(attrs.keys()):
             if key in prohibited:

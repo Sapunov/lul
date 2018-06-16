@@ -47,15 +47,24 @@ class Entity(models.Model):
     record = models.ForeignKey(
         'Record', on_delete=models.CASCADE, related_name='entities')
     name = models.CharField(max_length=50)
-    raw = models.CharField(max_length=200, blank=True)
+    raw = models.CharField(max_length=200)
+    value = models.CharField(max_length=200)
+    pos_start = models.IntegerField()
+    pos_end = models.IntegerField()
     entity_data = models.TextField()
 
-    def save(self, *args, **kwargs):
+    @classmethod
+    def create_entity(cls, record, entity):
 
-        if not self.pk:
-            self.raw = json.loads(self.entity_data)['raw']
-
-        super().save(*args, **kwargs)
+        cls.objects.create(
+            record=record,
+            name=entity.entity_name,
+            raw=entity.raw,
+            value=entity.value,
+            pos_start=entity.start,
+            pos_end=entity.end,
+            entity_data=json.dumps(entity.get_attrs())
+        )
 
     class Meta:
 
@@ -161,19 +170,15 @@ class Record(models.Model):
         if top_result.confidence > settings.LABEL_CLASSIFICATION_THRESHOLD:
             self.set_label(top_result.label)
 
+        return labels_predicted
+
     def extract_entities(self):
 
-        # Delete old entities before
-        for entity in self.entities.all():
-            entity.delete()
+        self.entities.all().delete() # Delete old entities before
 
         entities = entity_extraction.extract_entities(self.text)
         for entity in entities:
-            attrs = json.dumps(entity.get_attrs())
-            Entity.objects.create(
-                record=self,
-                name=entity.entity_name,
-                entity_data=attrs)
+            Entity.create_entity(self, entity)
 
         return entities
 
