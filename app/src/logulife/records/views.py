@@ -6,7 +6,7 @@ from logulife.common import get_logger
 from logulife.records.models import Record
 from logulife.records.serializers import (
     RecordSerializer, RecordCreateSerializer, RecordIdSerializer,
-    RecordUpdateDeleteSerializer)
+    RecordUpdateDeleteSerializer, LabelSetSerializer, LabelConfirmSerializer)
 
 
 log = get_logger(__name__)
@@ -94,3 +94,43 @@ class RecordsLabelsListView(GenericAPIView):
     def get(self, request):
 
         return Response({'labels': settings.ALLOWED_LABELS})
+
+
+class LableSetView(GenericAPIView):
+
+    serializer_class = LabelSetSerializer
+
+    def post(self, request, record_id):
+
+        data = request.data
+        data.update({'record_id': record_id})
+
+        if 'force' in request.query_params:
+            data.update({'force': True})
+
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+
+        label = serializer.validated_data['label']
+        record = serializer.validated_data['record']
+
+        record.set_label(label, confirm=True)
+
+        return Response({'label': label, 'label_confirmed': True})
+
+
+class LabelConfirmView(GenericAPIView):
+
+    serializer_class = LabelConfirmSerializer
+
+    def post(self, request, record_id):
+
+        serializer = self.get_serializer(data={'record_id': record_id})
+        serializer.is_valid(raise_exception=True)
+
+        label = serializer.validated_data['label']
+        record = serializer.validated_data['record']
+
+        record.set_label(label, confirm=True)
+
+        return Response({'label': label, 'label_confirmed': True})

@@ -130,3 +130,44 @@ class RecordUpdateDeleteSerializer(RecordIdSerializer):
         record.save()
 
         return record
+
+
+class LabelSetSerializer(RecordIdSerializer):
+
+    label = serializers.CharField()
+    force = serializers.BooleanField(default=False)
+
+    def validate(self, attrs):
+
+        super().validate(attrs)
+
+        record = attrs['record']
+        label = attrs['label']
+        force = attrs['force']
+
+        if record.label_confirmed and not force:
+            raise ValidationError({'label': _('Label already confirmed')})
+
+        if label not in settings.ALLOWED_LABELS:
+            raise ValidationError({'label': _('This label is not allowed')})
+
+        return attrs
+
+
+class LabelConfirmSerializer(RecordIdSerializer):
+
+    def validate(self, attrs):
+
+        super().validate(attrs)
+
+        record = attrs['record']
+
+        if record.label_confirmed:
+            raise ValidationError({'label': _('Label already confirmed')})
+
+        if record.label is None:
+            raise ValidationError({'detail': _('No label to confirm. Set label first')})
+
+        attrs['label'] = record.label
+
+        return attrs

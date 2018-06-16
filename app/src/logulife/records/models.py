@@ -97,7 +97,7 @@ class Record(models.Model):
     # удалять их нельзя никогда
     owner = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     source = models.ForeignKey(Source, null=True, on_delete=models.SET_NULL)
-    ext_id = models.CharField(max_length=40, null=True)
+    ext_id = models.CharField(max_length=40, null=True, blank=True)
     timestamp = models.DateTimeField()
     label = models.CharField(max_length=100, blank=True, null=True)
     label_confirmed = models.BooleanField(default=False)
@@ -136,6 +136,15 @@ class Record(models.Model):
     def archive_record(self):
 
         self.deleted = True
+        self.save()
+
+    def set_label(self, label, confirm=False):
+
+        self.label = label
+        if confirm:
+            self.label_confirmed = True
+            self.labels_predicted.all().delete()
+
         self.save()
 
     def predict_label(self):
