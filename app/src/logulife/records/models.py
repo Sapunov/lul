@@ -56,7 +56,7 @@ class Entity(models.Model):
     @classmethod
     def create_entity(cls, record, entity):
 
-        cls.objects.create(
+        entity = cls.objects.create(
             record=record,
             name=entity.entity_name,
             raw=entity.raw,
@@ -65,6 +65,8 @@ class Entity(models.Model):
             pos_end=entity.end,
             entity_data=json.dumps(entity.get_attrs())
         )
+
+        return entity
 
     class Meta:
 
@@ -97,6 +99,10 @@ class LabelsPredicted(models.Model):
         return '<LabelsPredicted: label={0}; confidence={1}>'.format(
             self.label,
             self.confidence)
+
+    def __repr__(self):
+
+        return self.__str__()
 
 
 class Record(models.Model):
@@ -176,9 +182,10 @@ class Record(models.Model):
 
         self.entities.all().delete() # Delete old entities before
 
-        entities = entity_extraction.extract_entities(self.text)
-        for entity in entities:
-            Entity.create_entity(self, entity)
+        extracted_entities = entity_extraction.extract_entities(self.text)
+        entities = []
+        for entity in extracted_entities:
+            entities.append(Entity.create_entity(self, entity))
 
         return entities
 
@@ -197,9 +204,17 @@ class Record(models.Model):
 
             classification.text.learn(text_records, labels)
 
-    def notify_listeners(self):
+    def notify_create(self):
 
-        ready_to_process.send(sender=Record, instance=self)
+        pass
+
+    def notify_update(self):
+
+        pass
+
+    def notify_delete(self):
+
+        pass
 
     def __str__(self):
 

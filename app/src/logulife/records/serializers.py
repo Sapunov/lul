@@ -115,8 +115,14 @@ class RecordCreateSerializer(serializers.Serializer):
 
         record = Record.objects.create(**validated_data)
 
-        record.predict_labels()
-        record.extract_entities()
+        if not record.label_confirmed:
+            prediction_results = record.predict_labels()
+            log.debug('Prediction results: %s', prediction_results)
+
+        entities = record.extract_entities()
+        log.debug('Extracted entities: %s', entities)
+
+        record.notify_create()
 
         return record
 
@@ -152,6 +158,7 @@ class RecordUpdateDeleteSerializer(RecordIdSerializer):
         record.text = validated_data['text']
 
         record.save()
+        record.notify_update()
 
         return record
 

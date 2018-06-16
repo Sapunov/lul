@@ -98,6 +98,7 @@ class SingleRecordView(GenericAPIView):
         record = delete_serializer.validated_data['record']
 
         record.archive_record()
+        record.notify_delete()
 
         return Response({'deleted': True})
 
