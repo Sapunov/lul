@@ -184,7 +184,7 @@ STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'static')
 
 DEFAULT_SOURCE_NAME = 'native'
 
-ALLOWED_LABELS = ('costs', 'income', 'time', 'other')
+ALLOWED_LABELS = ('expence', 'income', 'time', 'other')
 
 DEFAULT_CURRENCY = 'rub'
 

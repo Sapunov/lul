@@ -11,7 +11,6 @@ from . import preprocessing
 THISDIR = os.path.abspath(os.path.dirname(__file__))
 MODELS_DIR = os.path.join(THISDIR, 'models')
 
-
 COUNT_VECTORIZER_FILENAME = os.path.join(MODELS_DIR, 'count_vectorizer.pkl')
 TFIDF_TRANSFORMER_FILENAME = os.path.join(MODELS_DIR, 'tfidf_transformer.pkl')
 MODEL_FILENAME = os.path.join(MODELS_DIR, 'model.pkl')
