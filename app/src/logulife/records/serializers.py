@@ -62,6 +62,14 @@ class RecordSerializer(serializers.ModelSerializer):
         model = Record
         exclude = ('deleted',)
 
+    def to_representation(self, record):
+
+        result = super().to_representation(record)
+        result['labels_predicted'].sort(
+            key=lambda it: it['confidence'], reverse=True)
+
+        return result
+
 
 class RecordCreateSerializer(serializers.Serializer):
 
