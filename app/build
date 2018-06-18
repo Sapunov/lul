@@ -41,14 +41,14 @@ done
 #
 echo "Set debug = False"
 
-sed -i.bak "s/DEBUG = True/DEBUG = False/g" src/logulife/settings.py
+sed -i.bak "s/DEBUG = True/DEBUG = False/g" src/app/settings.py
 
 
 #
 # Fetch version
 #
 
-VERSION=$(grep VERSION src/logulife/settings.py | awk '{print $3}' | sed "s/'//g")
+VERSION=$(grep VERSION src/app/settings.py | awk '{print $3}' | sed "s/'//g")
 
 #
 # BUILD DOCKER IMAGE

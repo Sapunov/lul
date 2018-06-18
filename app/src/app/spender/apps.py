@@ -3,7 +3,7 @@ from django.apps import AppConfig
 
 class SpenderConfig(AppConfig):
 
-    name = 'logulife.spender'
+    name = 'app.spender'
 
     def ready(self):
 

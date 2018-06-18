@@ -7,11 +7,11 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from rest_framework.exceptions import NotFound
 
-from logulife.common import get_logger
-from logulife.records import classification
-from logulife.records import entity_extraction
-from logulife.records.misc import import_module_attr
-from logulife.records.signals import ready_to_process
+from app.common import get_logger
+from app.records import classification
+from app.records import entity_extraction
+from app.records.misc import import_module_attr
+from app.records.signals import ready_to_process
 
 
 log = get_logger(__file__)

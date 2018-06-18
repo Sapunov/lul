@@ -1,6 +1,6 @@
 from django.urls import path
 
-from logulife.records.views import (
+from app.records.views import (
     RecordsView, SingleRecordView, RecordsLabelsListView,
     LableSetView, LabelConfirmView)
 

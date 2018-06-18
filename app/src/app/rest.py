@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.views import exception_handler
 
-from logulife.common import get_logger, expand_context_for_logging
+from app.common import get_logger, expand_context_for_logging
 
 
 log = get_logger(__name__)

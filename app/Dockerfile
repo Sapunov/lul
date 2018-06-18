@@ -15,4 +15,4 @@ WORKDIR /var/www/app
 
 EXPOSE 8000
 
-CMD ["/usr/local/bin/gunicorn", "logulife.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
+CMD ["/usr/local/bin/gunicorn", "app.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]

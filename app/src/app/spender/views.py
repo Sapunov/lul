@@ -1,6 +1,6 @@
 from django.shortcuts import render
 
-from logulife.common import get_logger
+from app.common import get_logger
 
 
 log = get_logger(__file__)

@@ -6,9 +6,9 @@ from rest_framework.exceptions import ValidationError, NotFound
 from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
 
-from logulife.common import get_logger
-from logulife.records import misc
-from logulife.records.models import (
+from app.common import get_logger
+from app.records import misc
+from app.records.models import (
     LabelsPredicted, Source, Record, Entity)
 
 

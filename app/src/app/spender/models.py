@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
 
-from logulife.records.models import Record
+from app.records.models import Record
 
 from .misc import split_float
 

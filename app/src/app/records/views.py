@@ -2,12 +2,12 @@ from django.conf import settings
 from rest_framework.generics import GenericAPIView, ListAPIView
 from rest_framework.response import Response
 
-from logulife.common import get_logger
-from logulife.records.models import Record
-from logulife.records.serializers import (
+from app.common import get_logger
+from app.records.models import Record
+from app.records.serializers import (
     RecordSerializer, RecordCreateSerializer, RecordIdSerializer,
     RecordUpdateDeleteSerializer, LabelSetSerializer, LabelConfirmSerializer)
-from logulife.records.misc import is_true
+from app.records.misc import is_true
 
 
 log = get_logger(__name__)
@@ -48,6 +48,7 @@ class RecordsView(GenericAPIView):
 
         records = Record.objects.filter(**filters).order_by('-timestamp')
 
+        # TODO: Надо оптимизировать срочно!
         if 'tags' in params:
             tags = [t.lower() for t in params['tags'].split(',') if t]
             if tags:

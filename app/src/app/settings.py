@@ -48,9 +48,9 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'rest_framework.authtoken',
-    'logulife.records',
-    'logulife.spender.apps.SpenderConfig',
-    'logulife.web',
+    'app.records',
+    'app.spender',
+    'app.web',
 ]
 
 MIDDLEWARE = [
@@ -61,10 +61,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'logulife.middleware.ExceptionsHandlingMiddleware'
+    'app.middleware.ExceptionsHandlingMiddleware'
 ]
 
-ROOT_URLCONF = 'logulife.urls'
+ROOT_URLCONF = 'app.urls'
 
 APPEND_SLASH = False
 
@@ -84,7 +84,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'logulife.wsgi.application'
+WSGI_APPLICATION = 'app.wsgi.application'
 
 DATABASES = {
     'default': {
@@ -134,7 +134,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PARSER_CLASSES': (
         'rest_framework.parsers.JSONParser',
     ),
-    'EXCEPTION_HANDLER': 'logulife.rest.api_exception_handler',
+    'EXCEPTION_HANDLER': 'app.rest.api_exception_handler',
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
     ),
@@ -194,8 +194,8 @@ SAVED_PREDICTION_RESULTS = 3
 
 RECORDS_LISTENERS = {
     'spender': {
-        'create': 'logulife.spender.views.record_create',
-        'update': 'logulife.spender.views.record_update',
-        'delete': 'logulife.spender.views.record_delete'
+        'create': 'app.spender.views.record_create',
+        'update': 'app.spender.views.record_update',
+        'delete': 'app.spender.views.record_delete'
     }
 }

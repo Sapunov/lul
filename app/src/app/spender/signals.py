@@ -1,8 +1,8 @@
 from django.dispatch import receiver
 
-from logulife.records.models import Record
-from logulife.records.signals import ready_to_process
-from logulife.common import get_logger
+from app.records.models import Record
+from app.records.signals import ready_to_process
+from app.common import get_logger
 from .models import Transaction
 
 

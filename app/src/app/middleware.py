@@ -3,8 +3,8 @@ import logging
 from django.http import JsonResponse
 from rest_framework import status
 
-from logulife.common import get_logger
-from logulife.rest import error_format
+from app.common import get_logger
+from app.rest import error_format
 
 
 log = get_logger(__name__)
