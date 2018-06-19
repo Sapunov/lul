@@ -48,3 +48,7 @@ class BadUrlException(LogulifeException):
 class BadConfigPath(LogulifeException):
 
     pass
+
+class PermissionDeniedException(LogulifeException):
+
+    pass

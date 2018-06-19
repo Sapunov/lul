@@ -1,5 +1,6 @@
 from datetime import datetime
 import requests
+import json
 
 from logulife import exceptions
 from logulife import misc
@@ -63,7 +64,7 @@ class LogulifeClient:
             raise exceptions.NetworkException(
                 'Error while making GET request to {0}: {1}'.format(url, exc), exc)
 
-        return resp
+        return self._process_response(resp)
 
     def post(self, url, json_data=None, headers=None):
 
@@ -85,7 +86,7 @@ class LogulifeClient:
             raise exceptions.NetworkException(
                 'Error while making POST request to {0}: {1}'.format(url, exc), exc)
 
-        return resp
+        return self._process_response(resp)
 
     def put(self, url, json_data=None, headers=None):
 
@@ -107,7 +108,7 @@ class LogulifeClient:
             raise exceptions.NetworkException(
                 'Error while making PUT request to {0}: {1}'.format(url, exc), exc)
 
-        return resp
+        return self._process_response(resp)
 
     def delete(self, url, headers=None):
 
@@ -125,7 +126,23 @@ class LogulifeClient:
             raise exceptions.NetworkException(
                 'Error while making DELETE request to {0}: {1}'.format(url, exc), exc)
 
-        return resp
+        return self._process_response(resp)
+
+    def _process_response(self, response):
+
+        if response.status_code == requests.codes['unauthorized']:
+            raise exceptions.PermissionDeniedException(response.text)
+
+        if response.status_code == requests.codes['not_found']:
+            raise exceptions.NotFoundException(response.text)
+
+        if response.status_code == requests.codes['bad']:
+            raise exceptions.LogulifeException(response.text)
+
+        try:
+            return response.json()
+        except json.JSONDecodeError:
+            return response.text
 
     def _auth_with_credentials(self, username, password):
 
@@ -137,13 +154,7 @@ class LogulifeClient:
             },
             headers={})
 
-        if resp.status_code == requests.codes['ok']:
-            self.token = resp.json()['token']
-            return self.token
-        elif resp.status_code == requests.codes['400']:
-            raise exceptions.WrongCredentialsException()
-        else:
-            raise exceptions.LogulifeException(resp.text)
+        self.token = resp['token']
 
     def _split_app_url(self, url):
 
