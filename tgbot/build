@@ -37,13 +37,18 @@ while read line;
 	do rm -rf $line;
 done
 
+#
+# Fetch version
+#
+
+VERSION=$(grep VERSION src/bot/settings.py | awk '{print $3}' | sed "s/'//g")
 
 #
 # BUILD DOCKER IMAGE
 #
 echo "Start building docker image"
 
-docker build -t $SERVICE_NAME:latest .
+docker build -t $SERVICE_NAME:$VERSION .
 
 
 #

@@ -53,14 +53,13 @@ def text(bot, update):
         return
 
     if from_id not in lul_clients:
-        lul_clients[from_id] = LogulifeClient(
-            settings.LOGULIFE_HOST, token=token)
+        lul_clients[from_id] = LogulifeClient(token=token)
 
     client = lul_clients[from_id]
 
     if update.message is None: # this is update
         try:
-            client.update_record(
+            client.records.update_by_ext_id(
                 settings.SOURCE_NAME,
                 update.edited_message.message_id,
                 update.edited_message.text)
@@ -70,17 +69,35 @@ def text(bot, update):
             update.edited_message.reply_text(messages.NOT_FOUND)
         except Exception as exc:
             log.error(exc)
-            misc.save_json(update.update_id, update.to_json())
+            save_msg = '{0}\n{1}'.format(str(exc), update.to_json())
+            misc.save_json(update.update_id, save_msg)
             update.edited_message.reply_text(messages.OK_UPDATE)
+            # Сообщение админу
+            bot.send_message(
+                settings.ADMIN_ACCOUNT,
+                'Запись с id={0} у пользователя {1} не была ' \
+                'обновлена. Ошибка: {2}'.format(
+                    update.update_id,
+                    update.effective_user.username,
+                    str(exc)))
     else:
         try:
-            client.make_record(
+            client.records.create(
+                update.message.text,
                 settings.SOURCE_NAME,
                 update.message.message_id,
-                update.message.text,
                 update.message.date)
         except Exception as exc:
             log.error(exc)
-            misc.save_json(update.update_id, update.to_json())
+            save_msg = '{0}\n{1}'.format(str(exc), update.to_json())
+            misc.save_json(update.update_id, save_msg)
+            # Сообщение админу
+            bot.send_message(
+                settings.ADMIN_ACCOUNT,
+                'Запись с id={0} у пользователя {1} не была ' \
+                'сохранена. Ошибка: {2}'.format(
+                    update.update_id,
+                    update.effective_user.username,
+                    str(exc)))
 
         update.message.reply_text(messages.OK)
