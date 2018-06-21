@@ -21,6 +21,7 @@ class RecordsHandler(BaseHandler):
         if timestamp is not None:
             assert isinstance(timestamp, datetime), \
                 'Timestamp must be of type datetime'
+            user_data['timestamp'] = timestamp.isoformat()
 
         if label is not None:
             user_data['label'] = label

@@ -51,4 +51,4 @@ def conf_param(path_to_param):
     return current_state
 
 
-REQUEST_TIMEOUT = 10
+REQUEST_TIMEOUT = 60
