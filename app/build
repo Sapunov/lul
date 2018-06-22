@@ -21,6 +21,7 @@ done
 # COPYING LIB
 #
 cp -r ../lib $BUILD_DIR/
+cp ../deploy/*.deploy.json $BUILD_DIR/
 
 cd $BUILD_DIR
 

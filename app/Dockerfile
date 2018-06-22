@@ -13,7 +13,7 @@ RUN BUILD_DEPS='build-essential python3-dev' \
 	&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 COPY conf /etc/logulife
-COPY ../deploy/*.deploy.json /etc/logulife
+COPY *.deploy.json /etc/logulife
 
 WORKDIR /var/www/app
 
