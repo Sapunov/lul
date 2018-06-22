@@ -3,8 +3,9 @@
 PASSWORD=somestrongdbpassword
 echo -n "Database password: " && read -s PASSWORD && echo ""
 
-sudo docker run --name logulife_postgres \
+sudo docker run --name logulife-postgres \
 	-e POSTGRES_PASSWORD=$PASSWORD \
 	-v logulife-pgdata:/var/lib/postgresql/data \
 	-p 5432:5432 \
-	-d logulife_postgres:latest
+	--network logulife \
+	-d logulife-postgres:latest

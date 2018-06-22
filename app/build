@@ -1,7 +1,7 @@
 #!/bin/bash
 
 BUILD_DIR=_build
-SERVICE_NAME=logulife-tgbot
+SERVICE_NAME=logulife-app
 
 
 #
@@ -14,7 +14,7 @@ rm -rf $BUILD_DIR \
 
 ls | grep -v "$BUILD_DIR" | grep -v build | \
 while read line;
-	do echo "cp -r $line $BUILD_DIR/" && cp -r $line $BUILD_DIR/;
+	do cp -r $line $BUILD_DIR/;
 done
 
 #
@@ -40,11 +40,20 @@ while read line;
 	do rm -rf $line;
 done
 
+
+#
+# SET DEGUG = FALSE
+#
+echo "Set debug = False"
+
+sed -i.bak "s/DEBUG = True/DEBUG = False/g" src/app/settings.py
+
+
 #
 # Fetch version
 #
 
-VERSION=$(grep VERSION src/bot/settings.py | awk '{print $3}' | sed "s/'//g")
+VERSION=$(grep VERSION src/app/settings.py | awk '{print $3}' | sed "s/'//g")
 
 #
 # BUILD DOCKER IMAGE

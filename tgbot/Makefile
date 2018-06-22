@@ -1,4 +1,4 @@
-APP_NAME   := logulife_tgbot
+APP_NAME   := logulife-tgbot
 DOCKER_TAG := $(APP_NAME):latest
 DOCKER_CMD := docker
 
@@ -11,4 +11,4 @@ rm_image:
 	$(DOCKER_CMD) rmi $(DOCKER_TAG)
 
 run_container:
-	$(DOCKER_CMD) run -d --name $(APP_NAME) --network logulife  -e "LOGULIFE_HOST=http://logulife_app:8000" $(DOCKER_TAG)
+	$(DOCKER_CMD) run -d --name $(APP_NAME) --network logulife $(DOCKER_TAG)

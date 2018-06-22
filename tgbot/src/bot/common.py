@@ -5,7 +5,7 @@ import os
 import settings
 
 
-def mini_log(name, level=None, log_namespace=settings.PROGRAM_NAME):
+def mini_log(name, level=None, log_namespace=settings.APP_GROUP_NAME):
 
     fullname = log_namespace + '.' + name
 
@@ -30,7 +30,7 @@ def mini_log(name, level=None, log_namespace=settings.PROGRAM_NAME):
 
         # file
         file_handler = logging.FileHandler(
-            os.path.join(settings.LOGS_DIR, 'debug.log'))
+            os.path.join(settings.LOGS_DIR, settings.APP_NAME + '.log'))
         file_handler.setFormatter(logging.Formatter(log_format, date_format))
         file_handler.setLevel(log_level)
         log.addHandler(file_handler)
