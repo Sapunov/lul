@@ -44,6 +44,6 @@ USE_PROXY = True
 
 PROXY_HOST = 'socks5://heirh.tgproxy.me:1080'
 
-PROXY_USERNAME = ''
+PROXY_USERNAME = 'telegram'
 
-PROXY_PASSWORD = ''
+PROXY_PASSWORD = 'telegram'
