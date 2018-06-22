@@ -1,4 +1,4 @@
-APP_NAME   := logulife_app
+APP_NAME   := logulife-app
 DOCKER_TAG := $(APP_NAME):$($(grep VERSION src/app/settings.py | awk '{print $3}' | sed "s/'//g"))
 DOCKER_CMD := docker
 

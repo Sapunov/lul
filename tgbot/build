@@ -1,7 +1,7 @@
 #!/bin/bash
 
 BUILD_DIR=_build
-SERVICE_NAME=logulife_tgbot
+SERVICE_NAME=logulife-tgbot
 
 
 #
@@ -17,6 +17,9 @@ while read line;
 	do echo "cp -r $line $BUILD_DIR/" && cp -r $line $BUILD_DIR/;
 done
 
+#
+# COPYING LIB
+#
 cp -r ../lib $BUILD_DIR/
 
 cd $BUILD_DIR

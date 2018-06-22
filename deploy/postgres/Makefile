@@ -1,4 +1,4 @@
-APP_NAME   := logulife_postgres
+APP_NAME   := logulife-postgres
 DOCKER_CMD := docker
 
 all: build_image
