@@ -7,8 +7,8 @@ class TransactionAdmin(admin.ModelAdmin):
 
     list_display = (
         'id', 'amount_int', 'amount_decimal', 'currency',
-        'direction', 'category', 'category_confirmed', 'record')
-    ordering = ('-id',)
+        'direction', 'category',  'owner', 'timestamp', 'category_confirmed', 'record')
+    ordering = ('-timestamp',)
 
 
 admin.site.register(Transaction, TransactionAdmin)
