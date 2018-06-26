@@ -65,3 +65,17 @@ class RecordsHandler(BaseHandler):
             params.update({'q': q})
 
         return self._client.get('app:/api/records', params=params)
+
+    def set_label(self, record_id, label):
+
+        data = {
+            'label': label
+        }
+
+        return self._client.post(
+            'app:api/records/{0}/label'.format(record_id), json_data=data)
+
+
+    def set_label_by_ext_id(self, source, ext_id, label):
+
+        return self.set_label('{0}_{1}'.format(source, ext_id), label)
