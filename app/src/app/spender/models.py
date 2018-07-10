@@ -6,6 +6,12 @@ from app.records.models import Record
 from app.spender.misc import split_float
 
 
+class Category(models.Model):
+
+    name = models.CharField(max_length=100, unique=True)
+    description = models.CharField(max_length=400, default='')
+
+
 class Transaction(models.Model):
 
     DIRECTIONS = (
@@ -17,7 +23,7 @@ class Transaction(models.Model):
     amount_decimal = models.IntegerField()
     currency = models.CharField(max_length=10, default=settings.DEFAULT_CURRENCY)
     direction = models.SmallIntegerField(choices=DIRECTIONS)
-    category = models.CharField(max_length=50, blank=True, null=True)
+    category = models.ForeignKey(Category,  null=True, on_delete=models.SET_NULL, related_name='transactions')
     category_confirmed = models.BooleanField(default=False)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     timestamp = models.DateTimeField()
@@ -55,3 +61,13 @@ class Transaction(models.Model):
         self.currency = currency
 
         self.save()
+
+    @property
+    def amount(self):
+
+        return self.amount_int + self.amount_decimal / 10000
+
+    @property
+    def direction_human(self):
+
+        return Transaction.DIRECTIONS[self.direction][1]

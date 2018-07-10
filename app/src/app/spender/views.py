@@ -1,7 +1,10 @@
-from django.shortcuts import render
+from django.conf import settings
+from rest_framework.generics import GenericAPIView, ListAPIView
+from rest_framework.response import Response
 
 from app.common import get_logger
-from app.spender.models import Transaction
+from app.spender.models import Transaction, Category
+from app.spender.serializers import CategorySerializer, TransactionSerializer
 
 
 ALLOWED_LABELS = ('income', 'expence')
@@ -81,3 +84,40 @@ def record_delete(record_id):
         transaction.delete()
     except Transaction.DoesNotExist:
         log.debug('No transaction with record=%s. Do nothing...', record_id)
+
+
+class CategoriesView(GenericAPIView):
+
+    serializer_class = CategorySerializer
+
+    def get(self, request):
+
+        categories = Category.objects.all()
+        queryset = self.paginate_queryset(categories)
+
+        serializer = self.get_serializer(queryset, many=True)
+
+        return self.get_paginated_response(serializer.data)
+
+    def post(self, request):
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        serializer.save()
+
+        return Response(serializer.data)
+
+
+class TransactionsView(GenericAPIView):
+
+    serializer_class = TransactionSerializer
+
+    def get(self, request):
+
+        transactions = Transaction.objects.filter(owner=request.user).order_by('-timestamp')
+        queryset = self.paginate_queryset(transactions)
+
+        serializer = self.get_serializer(queryset, many=True)
+
+        return self.get_paginated_response(serializer.data)
