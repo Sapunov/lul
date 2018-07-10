@@ -142,9 +142,6 @@ class LableSetView(GenericAPIView):
         data = request.data
         data.update({'record_id': record_id})
 
-        if 'force' in request.query_params:
-            data.update({'force': True})
-
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
 
