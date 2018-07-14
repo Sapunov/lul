@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import Q
 
 from app.records.models import Record
 from app.spender.misc import split_float
@@ -9,7 +10,26 @@ from app.spender.misc import split_float
 class Category(models.Model):
 
     name = models.CharField(max_length=100, unique=True)
-    description = models.CharField(max_length=400, default='')
+    description = models.CharField(max_length=400, default='', blank=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True, default=None, blank=True)
+
+    @classmethod
+    def get_user_and_common(cls, user):
+
+        categories = cls.objects.filter(
+            Q(owner=user) | Q(owner__isnull=True))
+
+        return categories
+
+    def __str__(self):
+
+        return '<Category: {0},{1}>'.format(
+            self.name,
+            'None' if self.owner is None else self.owner.username)
+
+    def __repr__(self):
+
+        return self.__str__()
 
 
 class Transaction(models.Model):
@@ -71,3 +91,9 @@ class Transaction(models.Model):
     def direction_human(self):
 
         return Transaction.DIRECTIONS[self.direction][1]
+
+    @property
+    def category_variants(self):
+
+        categories = Category.get_user_and_common(self.owner)
+        return categories
