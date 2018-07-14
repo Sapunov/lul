@@ -6,7 +6,7 @@ APP_GROUP_NAME = 'logulife'
 
 APP_NAME = 'app'
 
-VERSION = '0.2.0'
+VERSION = '0.2.1'
 
 ETC = '/etc'
 
@@ -66,7 +66,7 @@ MIDDLEWARE = [
     'app.middleware.ExceptionsHandlingMiddleware'
 ]
 
-CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_ALLOW_ALL = DEBUG
 
 ROOT_URLCONF = 'app.urls'
 
