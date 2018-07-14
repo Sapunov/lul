@@ -1,7 +1,12 @@
-from django.shortcuts import render
+from django.conf import settings
+from rest_framework.generics import GenericAPIView, ListAPIView
+from rest_framework.response import Response
 
 from app.common import get_logger
-from app.spender.models import Transaction
+from app.spender.models import Transaction, Category
+from app.spender.serializers import (
+    CategorySerializer, TransactionSerializer, CategoryDeleteSerializer,
+    CategorySetSerializer, CategoryIdSerializer)
 
 
 ALLOWED_LABELS = ('income', 'expence')
@@ -81,3 +86,102 @@ def record_delete(record_id):
         transaction.delete()
     except Transaction.DoesNotExist:
         log.debug('No transaction with record=%s. Do nothing...', record_id)
+
+
+class CategoriesView(GenericAPIView):
+
+    serializer_class = CategorySerializer
+
+    def get(self, request):
+
+        categories = Category.get_user_and_common(request.user)
+        queryset = self.paginate_queryset(categories)
+
+        serializer = self.get_serializer(queryset, many=True)
+
+        return self.get_paginated_response(serializer.data)
+
+    def post(self, request):
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        serializer.save()
+
+        return Response(serializer.data)
+
+class CategoryDeleteView(GenericAPIView):
+
+    serializer_class = CategoryDeleteSerializer
+
+    def delete(self, request, cat_id):
+
+        data = {
+            'id': cat_id
+        }
+
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+
+        serializer.validated_data['category'].delete()
+
+        return Response({'deleted': True})
+
+
+class TransactionsView(GenericAPIView):
+
+    serializer_class = TransactionSerializer
+
+    def get(self, request):
+
+        transactions = Transaction.objects.filter(owner=request.user).order_by('-timestamp')
+        queryset = self.paginate_queryset(transactions)
+
+        serializer = self.get_serializer(queryset, many=True)
+
+        return self.get_paginated_response(serializer.data)
+
+
+class CategorySetView(GenericAPIView):
+
+    serializer_class = CategorySetSerializer
+
+    def post(self, request, transaction_id, category_id):
+
+        data = {
+            'transaction_id': transaction_id,
+            'category_id': category_id
+        }
+
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+
+        transaction = serializer.validated_data['transaction']
+        category = serializer.validated_data['category']
+
+        transaction.category = category
+        transaction.category_confirmed = True
+        transaction.save()
+
+        return Response()
+
+
+class CategoryConfirmView(GenericAPIView):
+
+    serializer_class = CategoryIdSerializer
+
+    def post(self, request, transaction_id):
+
+        data = {
+            'transaction_id': transaction_id
+        }
+
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+
+        transaction = serializer.validated_data['transaction']
+
+        transaction.category_confirmed = True
+        transaction.save()
+
+        return Response()

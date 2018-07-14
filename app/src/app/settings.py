@@ -6,7 +6,7 @@ APP_GROUP_NAME = 'logulife'
 
 APP_NAME = 'app'
 
-VERSION = '0.1.0'
+VERSION = '0.2.0'
 
 ETC = '/etc'
 
@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',  # for development
 
     'rest_framework',
     'rest_framework.authtoken',
@@ -54,6 +55,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',  # for development
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -63,6 +65,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'app.middleware.ExceptionsHandlingMiddleware'
 ]
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'app.urls'
 
@@ -190,7 +194,7 @@ DEFAULT_CURRENCY = 'rub'
 
 LABEL_CLASSIFICATION_THRESHOLD = 0.9
 
-SAVED_PREDICTION_RESULTS = 3
+SAVED_PREDICTION_RESULTS = -1
 
 RECORDS_LISTENERS = {
     'spender': {

@@ -184,7 +184,11 @@ class Record(models.Model):
         prediction_results = classification.text.predict_labels(self.text)
         labels_predicted = []
 
-        for label, confidence in prediction_results[:settings.SAVED_PREDICTION_RESULTS]:
+        saved_results = settings.SAVED_PREDICTION_RESULTS
+        if saved_results < 0:
+            saved_results = len(prediction_results)
+
+        for label, confidence in prediction_results[:saved_results]:
             labels_predicted.append(LabelsPredicted.objects.create(
                 record=self, label=label, confidence=round(confidence, 4)))
 

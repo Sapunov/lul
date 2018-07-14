@@ -66,10 +66,11 @@ class RecordsHandler(BaseHandler):
 
         return self._client.get('app:/api/records', params=params)
 
-    def set_label(self, record_id, label):
+    def set_label(self, record_id, label, force=False):
 
         data = {
-            'label': label
+            'label': label,
+            'force': force
         }
 
         return self._client.post(

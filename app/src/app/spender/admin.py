@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Transaction
+from .models import Transaction, Category
 
 
 class TransactionAdmin(admin.ModelAdmin):
@@ -12,3 +12,4 @@ class TransactionAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Transaction, TransactionAdmin)
+admin.site.register(Category)
