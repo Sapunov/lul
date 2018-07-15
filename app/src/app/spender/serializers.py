@@ -27,7 +27,7 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
 
         model = Category
-        fields = ('id', 'name', 'description', 'owner')
+        fields = ('id', 'name', 'description', 'owner', 'direction')
         read_only_fields = ('id',)
 
     def validate(self, attrs):
@@ -45,7 +45,8 @@ class CategorySerializer(serializers.ModelSerializer):
         cat = Category.objects.create(
             name=validated_data['name'],
             description=validated_data.get('description', ''),
-            owner=self.context['request'].user)
+            owner=self.context['request'].user,
+            direction=validated_data['direction'])
 
         return cat
 
@@ -77,7 +78,7 @@ class CategoryVariantSerializer(serializers.ModelSerializer):
     class Meta:
 
         model = Category
-        fields = ('id', 'name', 'confidence')
+        fields = ('id', 'name', 'confidence', 'direction')
 
 
 class TransactionSerializer(serializers.ModelSerializer):
