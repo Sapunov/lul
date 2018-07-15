@@ -7,11 +7,18 @@ from app.records.models import Record
 from app.spender.misc import split_float
 
 
+DIRECTIONS = (
+    (0, 'income'),
+    (1, 'expense')
+)
+
+
 class Category(models.Model):
 
     name = models.CharField(max_length=100, unique=True)
     description = models.CharField(max_length=400, default='', blank=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True, default=None, blank=True)
+    direction = models.SmallIntegerField(choices=DIRECTIONS)
 
     @classmethod
     def get_user_and_common(cls, user):
@@ -33,11 +40,6 @@ class Category(models.Model):
 
 
 class Transaction(models.Model):
-
-    DIRECTIONS = (
-        (0, 'income'),
-        (1, 'expense')
-    )
 
     amount_int = models.IntegerField()
     amount_decimal = models.IntegerField()
@@ -90,7 +92,7 @@ class Transaction(models.Model):
     @property
     def direction_human(self):
 
-        return Transaction.DIRECTIONS[self.direction][1]
+        return DIRECTIONS[self.direction][1]
 
     @property
     def category_variants(self):
