@@ -123,7 +123,11 @@ class CategoryDeleteView(GenericAPIView):
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
 
-        serializer.validated_data['category'].delete()
+        category = serializer.validated_data['category']
+        for transaction in category.transactions.all():
+            transaction.category_confirmed = False
+            transaction.save()
+        category.delete()
 
         return Response({'deleted': True})
 
@@ -134,7 +138,14 @@ class TransactionsView(GenericAPIView):
 
     def get(self, request):
 
-        transactions = Transaction.objects.filter(owner=request.user).order_by('-timestamp')
+        params = request.query_params
+        filters = {}
+
+        if 'q' in params:
+            filters['record__text__icontains'] = params['q']
+
+        transactions = Transaction.objects.filter(
+            owner=request.user, **filters).order_by('-timestamp')
         queryset = self.paginate_queryset(transactions)
 
         serializer = self.get_serializer(queryset, many=True)

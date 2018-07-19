@@ -27,15 +27,22 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
 
         model = Category
-        fields = ('id', 'name', 'description', 'owner', 'direction')
+        fields = (
+            'id', 'name', 'description',
+            'owner', 'direction', 'direction_human', 'references')
         read_only_fields = ('id',)
+        order_by = ('-references',)
 
     def validate(self, attrs):
 
         name = attrs['name']
+        direction = attrs['direction']
         user = self.context['request'].user
 
-        if Category.objects.filter(name=name, owner=user).exists():
+        if Category.objects.filter(
+                name=name,
+                owner=user,
+                direction=direction).exists():
             raise ValidationError({'name': _('This category already exists')})
 
         return attrs

@@ -15,7 +15,7 @@ DIRECTIONS = (
 
 class Category(models.Model):
 
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100)
     description = models.CharField(max_length=400, default='', blank=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True, default=None, blank=True)
     direction = models.SmallIntegerField(choices=DIRECTIONS)
@@ -27,6 +27,16 @@ class Category(models.Model):
             Q(owner=user) | Q(owner__isnull=True))
 
         return categories
+
+    @property
+    def direction_human(self):
+
+        return DIRECTIONS[self.direction][1]
+
+    @property
+    def references(self):
+
+        return self.transactions.all().count()
 
     def __str__(self):
 
