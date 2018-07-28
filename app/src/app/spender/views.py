@@ -4,12 +4,13 @@ from rest_framework.response import Response
 
 from app.common import get_logger
 from app.spender.models import Transaction, Category
+from app.spender.aggregations import aggregate_transactions
 from app.spender.serializers import (
     CategorySerializer, TransactionSerializer, CategoryDeleteSerializer,
     CategorySetSerializer, CategoryIdSerializer)
 
 
-ALLOWED_LABELS = ('income', 'expence')
+ALLOWED_LABELS = ('income', 'expense')
 
 log = get_logger(__file__)
 
@@ -110,6 +111,7 @@ class CategoriesView(GenericAPIView):
 
         return Response(serializer.data)
 
+
 class CategoryDeleteView(GenericAPIView):
 
     serializer_class = CategoryDeleteSerializer
@@ -147,10 +149,14 @@ class TransactionsView(GenericAPIView):
         transactions = Transaction.objects.filter(
             owner=request.user, **filters).order_by('-timestamp')
         queryset = self.paginate_queryset(transactions)
-
         serializer = self.get_serializer(queryset, many=True)
 
-        return self.get_paginated_response(serializer.data)
+        response = self.get_paginated_response(serializer.data)
+
+        response.data['aggs'] = aggregate_transactions(transactions)
+        response.data['params'] = params
+
+        return response
 
 
 class CategorySetView(GenericAPIView):

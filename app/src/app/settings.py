@@ -188,7 +188,7 @@ STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'static')
 
 DEFAULT_SOURCE_NAME = 'native'
 
-ALLOWED_LABELS = ('expence', 'income', 'time', 'other')
+ALLOWED_LABELS = ('expense', 'income', 'time', 'other')
 
 DEFAULT_CURRENCY = 'rub'
 
@@ -202,4 +202,11 @@ RECORDS_LISTENERS = {
         'update': 'app.spender.views.record_update',
         'delete': 'app.spender.views.record_delete'
     }
+}
+
+# Сервис для получения курсов валют
+FIXER = {
+    'url': 'http://data.fixer.io/api/{date}?access_key={access_key}',
+    'access_key':  CONF['fixer']['access_token'],
+    'timeout': 2
 }

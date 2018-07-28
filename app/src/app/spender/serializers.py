@@ -29,9 +29,8 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
         fields = (
             'id', 'name', 'description',
-            'owner', 'direction', 'direction_human', 'references')
+            'owner', 'direction', 'direction_human')
         read_only_fields = ('id',)
-        order_by = ('-references',)
 
     def validate(self, attrs):
 
@@ -88,14 +87,21 @@ class CategoryVariantSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'confidence', 'direction')
 
 
+class DefaultCurrency(serializers.Serializer):
+
+    amount = serializers.FloatField()
+    currency = serializers.CharField()
+
+
 class TransactionSerializer(serializers.ModelSerializer):
 
     owner = UserSerializer()
     record = serializers.PrimaryKeyRelatedField(read_only=True)
     record = RecordSerializer()
     direction = serializers.ChoiceField(choices=('income', 'expence'))
-    category_variants = CategoryVariantSerializer(many=True)
+    # category_variants = CategoryVariantSerializer(many=True)
     category = CategorySerializer()
+    default_currency = DefaultCurrency(allow_null=True)
 
     class Meta:
 
@@ -103,8 +109,8 @@ class TransactionSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'amount', 'category',
             'category_confirmed', 'currency', 'direction',
-            'owner', 'record', 'timestamp', 'direction_human',
-            'category_variants')
+            'owner', 'record', 'timestamp',
+            'direction_human', 'default_currency')
 
 
 class CategorySetSerializer(serializers.Serializer):
