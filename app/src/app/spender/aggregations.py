@@ -24,6 +24,13 @@ class Amount:
 
         return Amount(self.integer + other.integer, self.decimal + other.decimal)
 
+    def __lt__(self, other):
+
+        if self.integer == other.integer:
+            return self.decimal < other.decimal
+
+        return self.integer < other.integer
+
 
 def sum_amounts(amounts):
 
@@ -49,33 +56,6 @@ def convert_amount(dict_obj):
             dict_obj[key] = dict_obj[key].to_representation()
 
 
-def convert_currency(code_from, code_to, amount):
-
-    return amount
-
-
-def default_currency_dict(currencies, default_currency):
-
-    amounts = []
-    approx = False
-
-    for currency in currencies:
-        currency_code = currency['currency']
-        amount = currency['amount']
-        if currency_code != default_currency:
-            amounts.append(
-                convert_currency(currency_code, default_currency, amount))
-            approx = True
-        else:
-            amounts.append(amount)
-
-    return {
-        'approx': approx,
-        'amount': sum_amounts(amounts),
-        'currency': default_currency
-    }
-
-
 def _dict_to_list(dict_obj, id_field=None):
 
     ans = []
@@ -94,6 +74,14 @@ def _transform_currencies_dict(currencies_dict):
         currencies_dict[key] = {'amount': value}
 
     return _dict_to_list(currencies_dict, id_field='currency')
+
+
+def category_cmp(category):
+
+    if category['default_currency'] is not None:
+        return category['default_currency']['amount']
+
+    return category['currencies'][0]['amount']
 
 
 def _aggregate_direction_transactions(transactions):
@@ -149,6 +137,8 @@ def _aggregate_direction_transactions(transactions):
         categories[category_id]['currencies'] = _transform_currencies_dict(
             categories[category_id]['currencies'])
 
+        categories[category_id]['currencies'].sort(key=lambda it: it['amount'], reverse=True)
+
         if categories[category_id]['default_currency']['approx'] == False:
             categories[category_id]['default_currency'] = None
         else:
@@ -160,6 +150,7 @@ def _aggregate_direction_transactions(transactions):
         del summary['default_currency']['approx']
 
     categories = _dict_to_list(categories, id_field='id')
+    categories.sort(key=category_cmp, reverse=True)
 
     summary['currencies'] = _transform_currencies_dict(summary['currencies'])
 
