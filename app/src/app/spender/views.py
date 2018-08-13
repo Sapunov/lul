@@ -140,7 +140,9 @@ class TransactionsView(GenericAPIView):
 
     def get(self, request):
 
-        params_serializer = FilterParamsSerializer(data=request.query_params)
+        params_serializer = FilterParamsSerializer(
+            data=request.query_params,
+            context={'request': request})
         params_serializer.is_valid(raise_exception=True)
 
         transactions = Transaction.filter_transactions(

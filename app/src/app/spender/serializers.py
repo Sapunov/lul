@@ -182,16 +182,22 @@ class FilterParamsSerializer(serializers.Serializer):
         'today': timeperiods.today,
         'yesterday': timeperiods.yesterday,
         'month': timeperiods.month,
-        'quarter': timeperiods.quarter,
-        'year': timeperiods.year
+        'year': timeperiods.year,
+        'month-one': timeperiods.month_one,
+        'month-two': timeperiods.month_two,
+        'whole': timeperiods.whole
     }
 
     def validate(self, attrs):
 
+        user = self.context['request'].user
         period = attrs['period']
 
         if period in FilterParamsSerializer.PERIODS:
-            start, end = FilterParamsSerializer.PERIODS[period]()
+            if period == 'whole':
+                start, end = FilterParamsSerializer.PERIODS[period](user)
+            else:
+                start, end = FilterParamsSerializer.PERIODS[period]()
             attrs['timestamp_from'] = start
             attrs['timestamp_to'] = end
         else:
