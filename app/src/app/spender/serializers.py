@@ -2,8 +2,10 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError, NotFound
+from datetime import timedelta
 
 from app.spender.models import Category, Transaction
+from app.spender import timeperiods
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -165,5 +167,34 @@ class CategoryIdSerializer(serializers.Serializer):
             raise ValidationError({'category': _('Category not set')})
 
         attrs['transaction'] = transaction
+
+        return attrs
+
+
+class FilterParamsSerializer(serializers.Serializer):
+
+    q = serializers.CharField(required=False, default='')
+    page = serializers.IntegerField(required=False, default=1)
+    period = serializers.CharField(required=False, default='month')
+
+    PERIODS = {
+        'week': timeperiods.week,
+        'today': timeperiods.today,
+        'yesterday': timeperiods.yesterday,
+        'month': timeperiods.month,
+        'quarter': timeperiods.quarter,
+        'year': timeperiods.year
+    }
+
+    def validate(self, attrs):
+
+        period = attrs['period']
+
+        if period in FilterParamsSerializer.PERIODS:
+            start, end = FilterParamsSerializer.PERIODS[period]()
+            attrs['timestamp_from'] = start
+            attrs['timestamp_to'] = end
+        else:
+            raise ValidationError({'period': _('Unsupported period')})
 
         return attrs

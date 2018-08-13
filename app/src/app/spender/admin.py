@@ -11,6 +11,12 @@ class TransactionAdmin(admin.ModelAdmin):
     ordering = ('-timestamp',)
 
 
+class ExchangeRateAdmin(admin.ModelAdmin):
+
+    list_display = ('base', 'symbol', 'date', 'rate')
+    ordering = ('-date',)
+
+
 admin.site.register(Transaction, TransactionAdmin)
 admin.site.register(Category)
-admin.site.register(ExchangeRate)
+admin.site.register(ExchangeRate, ExchangeRateAdmin)

@@ -7,7 +7,7 @@ from app.spender.models import Transaction, Category
 from app.spender.aggregations import aggregate_transactions
 from app.spender.serializers import (
     CategorySerializer, TransactionSerializer, CategoryDeleteSerializer,
-    CategorySetSerializer, CategoryIdSerializer)
+    CategorySetSerializer, CategoryIdSerializer, FilterParamsSerializer)
 
 
 ALLOWED_LABELS = ('income', 'expense')
@@ -140,21 +140,23 @@ class TransactionsView(GenericAPIView):
 
     def get(self, request):
 
-        params = request.query_params
-        filters = {}
+        params_serializer = FilterParamsSerializer(data=request.query_params)
+        params_serializer.is_valid(raise_exception=True)
 
-        if 'q' in params:
-            filters['record__text__icontains'] = params['q']
+        transactions = Transaction.filter_transactions(
+            request.user,
+            q=params_serializer.validated_data['q'],
+            timestamp_from=params_serializer.validated_data['timestamp_from'],
+            timestamp_to=params_serializer.validated_data['timestamp_to'],
+        ).order_by('-timestamp')
 
-        transactions = Transaction.objects.filter(
-            owner=request.user, **filters).order_by('-timestamp')
         queryset = self.paginate_queryset(transactions)
         serializer = self.get_serializer(queryset, many=True)
 
         response = self.get_paginated_response(serializer.data)
 
         response.data['aggs'] = aggregate_transactions(transactions)
-        response.data['params'] = params
+        response.data['params'] = params_serializer.validated_data
 
         return response
 

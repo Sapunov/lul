@@ -169,6 +169,25 @@ class Transaction(models.Model):
     default_currency_amount_int = models.IntegerField(null=True)
     default_currency_amount_decimal = models.IntegerField(null=True)
 
+    @classmethod
+    def filter_transactions(cls, owner, q=None, timestamp_from=None,
+            timestamp_to=None, tags=None, categories=None):
+
+        filters = {}
+
+        if q is not None:
+            filters['record__text__icontains'] = q
+
+        if timestamp_from is not None:
+            filters['timestamp__gte'] = timestamp_from
+
+        if timestamp_to is not None:
+            filters['timestamp__lte'] = timestamp_to
+
+        transactions = cls.objects.filter(owner=owner, **filters)
+
+        return transactions
+
     def create(self, *args, **kwargs):
 
         raise ValueError('User `create_transaction` instead of this method')
@@ -215,14 +234,15 @@ class Transaction(models.Model):
     def calc_default_currency(self):
 
         if self.currency != self._default_currency:
-            converted_amount_int = ExchangeRate.convert(
-                self.currency, self._default_currency, self.amount_int, self.timestamp)
-            converted_amount_decimal = ExchangeRate.convert(
-                self.currency, self._default_currency, self.amount_decimal, self.timestamp)
+            converted_amount = ExchangeRate.convert(
+                self.currency,
+                self._default_currency,
+                self.amount,
+                self.timestamp)
 
-            if not (converted_amount_int is None or converted_amount_decimal is None):
+            if converted_amount is not None:
                 converted_amount_int, converted_amount_decimal = split_float(
-                    converted_amount_int + converted_amount_decimal)
+                    converted_amount)
 
                 self.default_currency_amount_int = converted_amount_int
                 self.default_currency_amount_decimal = converted_amount_decimal
