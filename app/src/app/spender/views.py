@@ -96,11 +96,12 @@ class CategoriesView(GenericAPIView):
     def get(self, request):
 
         categories = Category.get_user_and_common(request.user)
-        queryset = self.paginate_queryset(categories)
+        serializer = self.get_serializer(categories, many=True)
 
-        serializer = self.get_serializer(queryset, many=True)
-
-        return self.get_paginated_response(serializer.data)
+        return Response({
+            'count': len(serializer.data),
+            'results': serializer.data
+        })
 
     def post(self, request):
 
