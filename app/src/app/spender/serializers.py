@@ -100,7 +100,7 @@ class TransactionSerializer(serializers.ModelSerializer):
     owner = UserSerializer()
     record = serializers.PrimaryKeyRelatedField(read_only=True)
     record = RecordSerializer()
-    direction = serializers.ChoiceField(choices=('income', 'expence'))
+    direction = serializers.ChoiceField(choices=('income', 'expense'))
     # category_variants = CategoryVariantSerializer(many=True)
     category = CategorySerializer()
     default_currency = DefaultCurrency(allow_null=True)

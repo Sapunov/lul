@@ -224,6 +224,10 @@ export default {
       return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
     },
     humanize_period (from, to) {
+      if (!(from && to)) {
+        return ''
+      }
+
       let months = [
         'января',
         'февраля',
