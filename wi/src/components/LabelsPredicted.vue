@@ -1,9 +1,9 @@
 <template>
   <b-dropdown :text="record_label">
     <b-dropdown-item
-      v-for="label in (data.label_confirmed ? labels_exist : data.labels_predicted)"
+      v-for="label in (record.labels_predicted.length > 0 ? record.labels_predicted : labels_exist)"
       :key="label.label"
-      @click="set_label(data.id, label.label)"
+      @click="set_label(record.id, label.label)"
     >
     {{ label.label }}
     </b-dropdown-item>
@@ -28,7 +28,7 @@ export default {
       ]
     }
   },
-  props: ['data'],
+  props: ['record'],
   methods: {
     set_label (recordId, label) {
       axios.post(ApiUrl + `/records/${recordId}/label`, {
@@ -46,8 +46,8 @@ export default {
     }
   },
   mounted () {
-    if (this.data.label_confirmed) {
-      this.record_label = this.data.label
+    if (this.record.label_confirmed) {
+      this.record_label = this.record.label
     } else {
       this.record_label = 'Выберите класс'
     }

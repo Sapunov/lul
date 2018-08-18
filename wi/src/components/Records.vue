@@ -7,11 +7,14 @@
         <span class="text-info">(<a href="#" v-on:click.prevent="load_records">обновить</a>)</span>
       </p>
     </div>
-    <b-table bordered hover striped
+    <b-table
+      bordered
+      hover
+      striped
       :items="records"
       :fields="fields">
       <template slot="label" slot-scope="data">
-        <labels-predicted :data="data.item"></labels-predicted>
+        <labels-predicted :record="data.item"></labels-predicted>
       </template>
       <template slot="timestamp" slot-scope="data">
         {{ data.item.timestamp | formatDateTime }}
