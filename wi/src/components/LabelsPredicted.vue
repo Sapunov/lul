@@ -43,14 +43,20 @@ export default {
         .catch(e => {
           console.log(e)
         })
+    },
+    process_label () {
+      if (this.record.label_confirmed) {
+        this.record_label = this.record.label
+      } else {
+        this.record_label = 'Выберите класс'
+      }
     }
   },
+  updated () {
+    this.process_label()
+  },
   mounted () {
-    if (this.record.label_confirmed) {
-      this.record_label = this.record.label
-    } else {
-      this.record_label = 'Выберите класс'
-    }
+    this.process_label()
   }
 }
 </script>
