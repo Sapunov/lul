@@ -246,7 +246,11 @@ class Transaction(models.Model):
 
                 self.default_currency_amount_int = converted_amount_int
                 self.default_currency_amount_decimal = converted_amount_decimal
-                self.save()
+        else:
+            self.default_currency_amount_int = self.amount_int
+            self.default_currency_amount_decimal = self.amount_decimal
+
+        self.save()
 
     @property
     def amount(self):
