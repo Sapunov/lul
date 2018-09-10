@@ -31,6 +31,20 @@
                   class="form-control"
                   placeholder="Поиск транзакций"
                   v-model="query">
+                <div class="input-group-append">
+                  <b-dropdown
+                    variant="light"
+                    class="period-toggle-right"
+                    :text="category_filter_title">
+                    <b-dropdown-item
+                      v-for="fiCategory in filterCategories"
+                      :key="fiCategory.id"
+                      @click="filterCategory = fiCategory.name"
+                      >
+                      {{ fiCategory.title }}
+                    </b-dropdown-item>
+                  </b-dropdown>
+                </div>
               </div>
             </div>
           </div>
@@ -50,10 +64,14 @@
         </div>
         <div class="container-fluid aggs-wrapper">
           <transactions-aggs
+            v-on:filterCategory="changeCategory($event)"
             :aggs="aggs.income"
+            :filteredCategory="filterCategory"
             title="Доходы"></transactions-aggs>
           <transactions-aggs
+            v-on:filterCategory="changeCategory($event)"
             :aggs="aggs.expense"
+            :filteredCategory="filterCategory"
             title="Расходы"></transactions-aggs>
         </div>
         <div class="content">
@@ -149,12 +167,24 @@ export default {
         'year': {id: 5, name: 'year', title: 'С начала года'},
         'whole': {id: 6, name: 'whole', title: 'За все время'}
       },
-      params: {}
+      params: {},
+      filterCategories: {
+        '_with': {id: 1, name: '_with', title: 'С категорией'},
+        '_null': {id: 2, name: '_null', title: 'Без категории'}
+      },
+      filterCategory: '_with'
     }
   },
   computed: {
     lower_query () {
       return this.query.toLowerCase()
+    },
+    category_filter_title () {
+      if (this.filterCategory !== '_null') {
+        return this.filterCategories['_with'].title
+      } else {
+        return this.filterCategories['_null'].title
+      }
     },
     periods () {
       let months = [
@@ -195,6 +225,10 @@ export default {
     current_period (newPeriod, oldPeriod) {
       this.currentPage = 1
       this.load_transactions()
+    },
+    filterCategory (newFilterCategory, oldFilterCategory) {
+      this.currentPage = 1
+      this.load_transactions()
     }
   },
   mounted () {
@@ -206,7 +240,7 @@ export default {
   },
   methods: {
     load_transactions () {
-      axios.get(ApiUrl + `/spender/transactions?page=${this.currentPage}&q=${encodeURIComponent(this.query)}&period=${this.current_period}`, {
+      axios.get(ApiUrl + `/spender/transactions?page=${this.currentPage}&q=${encodeURIComponent(this.query)}&period=${this.current_period}&category=${this.filterCategory}`, {
         headers: { Authorization: `Token ${this.$store.state.token}` }
       })
         .then(response => {
@@ -266,6 +300,13 @@ export default {
     date_string (value) {
       if (value) {
         return moment(String(value)).format('DD.MM.YYYY')
+      }
+    },
+    changeCategory (category) {
+      if (category === null) {
+        this.filterCategory = '_with'
+      } else {
+        this.filterCategory = category.id
       }
     }
   },
@@ -327,6 +368,10 @@ export default {
 .period-toggle {
   border: 1px solid #ced4da;
   border-radius: 0.25rem 0 0 0.25rem;
+}
+.period-toggle-right {
+  border: 1px solid #ced4da;
+  border-radius: 0 0.25rem 0.25rem 0;
 }
 .period-wrapper {
   background-color: #fafbfc;

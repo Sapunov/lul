@@ -172,11 +172,18 @@ class CategoryIdSerializer(serializers.Serializer):
         return attrs
 
 
+WITH_CATEGORY = '_with'
+
+NO_CATEGORY = '_null'
+
+
 class FilterParamsSerializer(serializers.Serializer):
 
     q = serializers.CharField(required=False, default='')
     page = serializers.IntegerField(required=False, default=1)
     period = serializers.CharField(required=False, default='month')
+    # По умолчанию выводить записи всех категорий
+    category = serializers.CharField(required=False, default=WITH_CATEGORY)
 
     PERIODS = {
         'week': timeperiods.week,
@@ -193,6 +200,7 @@ class FilterParamsSerializer(serializers.Serializer):
 
         user = self.context['request'].user
         period = attrs['period']
+        category = attrs['category']
 
         if period in FilterParamsSerializer.PERIODS:
             if period == 'whole':
@@ -203,5 +211,8 @@ class FilterParamsSerializer(serializers.Serializer):
             attrs['timestamp_to'] = end
         else:
             raise ValidationError({'period': _('Unsupported period')})
+
+        if category not in (WITH_CATEGORY, NO_CATEGORY):
+            attrs['category'] = int(category)
 
         return attrs

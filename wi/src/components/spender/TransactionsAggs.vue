@@ -36,7 +36,19 @@
     <b-collapse :id="collapseId">
       <div class="d-flex justify-content-between category-item mr-3"
         v-for="category in aggs.categories" :key="category.id">
-        <span>{{ category.name }}</span>
+        <div class="d-flex align-items-center">
+          <a
+            v-bind:class="{ 'italic': filteredCategory === category.id }"
+            href="#"
+            @click.prevent="sayFilterCategory(category)"
+            class="text-dark">{{ category.name }}</a>
+          <small
+            title="Убрать фильтр"
+            class="oi oi-x x-icon"
+            v-b-tooltip.hover
+            @click="sayFilterCategory(null)"
+            v-if="filteredCategory === category.id"></small>
+        </div>
         <template v-if="category.default_currency === null">
           <div>
             {{ formatPrice(category.currencies[0].amount) }}
@@ -69,7 +81,7 @@ export default {
       collapseId: 'collapse' + this.title
     }
   },
-  props: ['aggs', 'title'],
+  props: ['aggs', 'title', 'filteredCategory'],
   methods: {
     popover_content (currencies) {
       var content = '<div class="px-1">'
@@ -89,6 +101,9 @@ export default {
     formatPrice (value) {
       let val = (value / 1).toFixed(2).replace('.', ',')
       return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+    },
+    sayFilterCategory (category) {
+      this.$emit('filterCategory', category)
     }
   }
 }
@@ -109,5 +124,20 @@ export default {
 }
 .direction-title {
   min-width: 80px;
+}
+.x-icon {
+  color: #dae2e9;
+  font-size: 0.7rem;
+  padding-left: 5px;
+  cursor: pointer;
+}
+.x-icon:hover {
+  color: #d0d9e3;
+}
+.x-icon:active {
+  color: #bac8d6;
+}
+.italic {
+  font-style: italic;
 }
 </style>
