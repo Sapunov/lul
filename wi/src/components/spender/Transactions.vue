@@ -92,7 +92,9 @@
                   </div>
                 </div>
                 <div class="col-3">
-                  <text-highlight :queries="query">{{ transaction.record.text }}</text-highlight>
+                  <text-highlight :queries="query">
+                    {{ transaction.record.text }}
+                  </text-highlight>
                 </div>
                 <div class="col-5 d-flex justify-content-end">
                   <category-select
@@ -191,6 +193,7 @@ export default {
       console.log(to)
     },
     current_period (newPeriod, oldPeriod) {
+      this.currentPage = 1
       this.load_transactions()
     }
   },

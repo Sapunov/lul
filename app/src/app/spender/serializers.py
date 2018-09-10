@@ -20,6 +20,7 @@ class RecordSerializer(serializers.Serializer):
 
     id = serializers.IntegerField()
     text = serializers.CharField()
+    tags = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
 
 class CategorySerializer(serializers.ModelSerializer):
