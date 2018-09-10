@@ -1,15 +1,6 @@
 <template>
   <div class="spender-nav py-2">
     <ul class="nav flex-column">
-      <!-- <li class="nav-item">
-        <router-link
-          class="nav-link"
-          to="/spender/stat"
-          :class="{active: $route.path == '/spender/stat'}"
-        >
-          Статистика
-        </router-link>
-      </li> -->
       <li class="nav-item">
         <router-link
           class="nav-link"
@@ -28,6 +19,15 @@
           Категории
         </router-link>
       </li>
+      <!-- <li class="nav-item">
+        <router-link
+          class="nav-link"
+          to="/spender/budget"
+          :class="{active: $route.path == '/spender/budget'}"
+        >
+          Бюджет
+        </router-link>
+      </li> -->
     </ul>
   </div>
 </template>
