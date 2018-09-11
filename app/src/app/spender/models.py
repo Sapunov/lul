@@ -171,7 +171,7 @@ class Transaction(models.Model):
 
     @classmethod
     def filter_transactions(cls, owner, q=None, timestamp_from=None,
-            timestamp_to=None, tags=None, categories=None):
+            timestamp_to=None, tags=None, category=None):
 
         filters = {}
 
@@ -183,6 +183,15 @@ class Transaction(models.Model):
 
         if timestamp_to is not None:
             filters['timestamp__lte'] = timestamp_to
+
+        if category is not None:
+            if category == '_null':
+                filters['category__isnull'] = True
+            elif category == '_with':
+                filters['category__isnull'] = False
+            else:
+                assert isinstance(category, int), 'Category must be ot type int'
+                filters['category__pk'] = category
 
         transactions = cls.objects.filter(owner=owner, **filters)
 
@@ -246,7 +255,11 @@ class Transaction(models.Model):
 
                 self.default_currency_amount_int = converted_amount_int
                 self.default_currency_amount_decimal = converted_amount_decimal
-                self.save()
+        else:
+            self.default_currency_amount_int = self.amount_int
+            self.default_currency_amount_decimal = self.amount_decimal
+
+        self.save()
 
     @property
     def amount(self):

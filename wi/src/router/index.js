@@ -33,5 +33,10 @@ export default new Router({
       name: 'Categories',
       component: Categories
     }
+    // {
+    //   path: '/spender/budget',
+    //   name: 'Budget',
+    //   component: Budget
+    // }
   ]
 })

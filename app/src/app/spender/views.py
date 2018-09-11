@@ -151,6 +151,7 @@ class TransactionsView(GenericAPIView):
             q=params_serializer.validated_data['q'],
             timestamp_from=params_serializer.validated_data['timestamp_from'],
             timestamp_to=params_serializer.validated_data['timestamp_to'],
+            category=params_serializer.validated_data['category']
         ).order_by('-timestamp')
 
         queryset = self.paginate_queryset(transactions)
