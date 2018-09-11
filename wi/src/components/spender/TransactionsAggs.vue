@@ -116,6 +116,9 @@ export default {
 .category-item:last-child {
   border-bottom: none;
 }
+.category-item:hover {
+  background-color: #fff;
+}
 .text-custom-grey {
   color: #eee;
 }
