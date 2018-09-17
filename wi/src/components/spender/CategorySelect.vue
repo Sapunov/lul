@@ -1,11 +1,17 @@
 <template>
   <div class="align-self-start confirm-group">
     <b-dropdown
+      :disabled="is_readonly"
+      :no-caret="is_readonly"
       :text="visible_name(transaction.category)"
       variant="light"
       right
       @shown="$refs.query.focus()"
-      @hidden="query = ''">
+      @hidden="query = ''"
+      v-bind:title="transaction.category === null ? '' : transaction.category.name"
+    >
+
+      <!-- Поисковое поле -->
       <div class="search-category">
         <div class="form-group">
           <input
@@ -17,6 +23,8 @@
             @keyup.enter="try_set_category(transaction)">
         </div>
       </div>
+
+      <!-- Категория -->
       <b-dropdown-item
         v-for="category in $store.getters.filter_categories(query, transaction.direction).slice(0, limit)"
         :key="category.id"
@@ -24,29 +32,47 @@
         @click="set_category(transaction, category)">
           <text-highlight :queries="query">{{ category.name }}</text-highlight>
           <br>
+
+          <!-- Описание категории, появляющееся при поиске -->
           <small
             v-if="category.description !== '' && query && category.description.toLowerCase().includes(query.toLowerCase())"
             class="text-muted">
             <text-highlight :queries="query">{{ category.description }}</text-highlight>
           </small>
+
       </b-dropdown-item>
+
+      <!-- Кнопка "Показать все" -->
       <template v-if="$store.getters.count_categories(transaction.direction) > 10 && limit !== max_limit && query == ''">
         <div class="dropdown-divider"></div>
         <div class="dropdown-item cursor" @click="limit = max_limit">
           <span class="text-info">Показать все...</span>
         </div>
       </template>
+
       <div class="dropdown-divider"></div>
+
+      <!-- Кнопка создания новой категории -->
       <b-dropdown-item
-        @click="$refs.CreateCategoryModal.show()"
-      >Создать новую категорию</b-dropdown-item>
+        @click="$refs.CreateCategoryModal.show()">
+        Создать новую категорию</b-dropdown-item>
+
     </b-dropdown>
+
+    <!-- Кнопка подтверждения выбранной категории -->
     <span
       class="oi oi-check ckeck-button"
       @click="confirm_category(transaction)"
-      :class="{'text-success': transaction.category_confirmed, 'grey-color': !transaction.category_confirmed}"
+      :class="{
+        'text-success': transaction.category_confirmed,
+        'grey-color': !transaction.category_confirmed,
+        'cursor': !is_readonly
+      }"
       ></span>
+
+    <!-- Компонент для создания новой категории -->
     <create-category ref="CreateCategoryModal" :direction="transaction.direction_human"></create-category>
+
   </div>
 </template>
 
@@ -66,10 +92,22 @@ export default {
       limit: 10
     }
   },
-  props: ['transaction'],
+  props: ['transaction', 'readonly'],
+  computed: {
+    is_readonly () {
+      return this.readonly !== undefined ? this.readonly : false
+    }
+  },
   methods: {
     visible_name (category) {
-      return category !== null ? category.name : null
+      if (category !== null) {
+        if (category.name.length <= 15) {
+          return category.name
+        } else {
+          return category.name.slice(0, 15) + '..'
+        }
+      }
+      return null
     },
     set_category (transaction, category) {
       axios.post(ApiUrl + `/spender/transactions/${transaction.id}/category/${category.id}`, {}, {
@@ -91,6 +129,9 @@ export default {
       }
     },
     confirm_category (transaction) {
+      if (this.is_readonly) {
+        return
+      }
       if (transaction.category !== null && transaction.category_confirmed === false) {
         axios.post(ApiUrl + `/spender/transactions/${transaction.id}/category/confirm`, {}, {
           headers: { Authorization: `Token ${this.$store.state.token}` }
@@ -103,9 +144,6 @@ export default {
           })
         transaction.category_confirmed = true
       }
-    },
-    test () {
-      console.log('test')
     }
   },
   components: {
@@ -118,6 +156,8 @@ export default {
 <style scoped>
 .ckeck-button {
   padding-left: 10px;
+}
+.cursor {
   cursor: pointer;
 }
 .ckeck-button:hover {

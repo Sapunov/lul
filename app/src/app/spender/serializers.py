@@ -184,6 +184,7 @@ class FilterParamsSerializer(serializers.Serializer):
     period = serializers.CharField(required=False, default='month')
     # По умолчанию выводить записи всех категорий
     category = serializers.CharField(required=False, default=WITH_CATEGORY)
+    other_owners = serializers.CharField(required=False)
 
     PERIODS = {
         'week': timeperiods.week,
@@ -201,6 +202,7 @@ class FilterParamsSerializer(serializers.Serializer):
         user = self.context['request'].user
         period = attrs['period']
         category = attrs['category']
+        other_owners_ids = attrs.get('other_owners', None)
 
         if period in FilterParamsSerializer.PERIODS:
             if period == 'whole':
@@ -214,5 +216,22 @@ class FilterParamsSerializer(serializers.Serializer):
 
         if category not in (WITH_CATEGORY, NO_CATEGORY):
             attrs['category'] = int(category)
+
+        if other_owners_ids:
+            other_owners = []
+            try:
+                other_owners_ids = [int(it) for it in other_owners_ids.split(',')]
+                for user_id in other_owners_ids:
+                    if user_id == user.pk:
+                        continue
+                    try:
+                        user = User.objects.get(pk=user_id)
+                        other_owners.append(user)
+                    except User.DoesNotExist:
+                        continue
+            except ValueError:
+                raise ValidationError({'owners': _('Owner ids invalid')})
+
+            attrs['other_owners_users'] = other_owners
 
         return attrs

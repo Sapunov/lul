@@ -171,7 +171,7 @@ class Transaction(models.Model):
 
     @classmethod
     def filter_transactions(cls, owner, q=None, timestamp_from=None,
-            timestamp_to=None, tags=None, category=None):
+            timestamp_to=None, tags=None, category=None, other_owners=None):
 
         filters = {}
 
@@ -193,7 +193,18 @@ class Transaction(models.Model):
                 assert isinstance(category, int), 'Category must be ot type int'
                 filters['category__pk'] = category
 
-        transactions = cls.objects.filter(owner=owner, **filters)
+        owners = [owner]
+        owners.extend(other_owners)
+
+        # Если у другого пользователя нет категории на транзакции,
+        # то транзакция не должна быть показана
+        other_uncategorized = cls.objects.filter(
+            owner__in=other_owners,
+            category__isnull=True).values_list('pk', flat=True)
+
+        transactions = cls.objects.filter(
+            owner__in=owners, **filters).exclude(
+                pk__in=other_uncategorized)
 
         return transactions
 

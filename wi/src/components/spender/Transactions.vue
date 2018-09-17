@@ -1,16 +1,23 @@
 <template>
   <div class="d-flex">
+
+    <!-- Левое навигационное меню -->
     <nav class="nav-wrapper mr-3">
       <spender-nav></spender-nav>
       <div class="filters-wrapper py-2 mt-3" v-if="false">
       </div>
     </nav>
+
     <main class="main-wrapper">
       <div class="wrapper">
+
+        <!-- Поисковое поле + кнопка выбора периода + фильтр транзакций -->
         <div class="container-fluid count-wrapper">
           <div class="row d-flex align-items-center">
             <div class="col d-flex">
               <div class="input-group">
+
+                <!-- Период -->
                 <div class="input-group-prepend">
                   <b-dropdown
                     variant="light"
@@ -25,12 +32,16 @@
                     </b-dropdown-item>
                   </b-dropdown>
                 </div>
+
+                <!-- Поле поиска -->
                 <input
                   ref="query"
                   type="text"
                   class="form-control"
                   placeholder="Поиск транзакций"
                   v-model="query">
+
+                <!-- Фильтр транзакций -->
                 <div class="input-group-append">
                   <b-dropdown
                     variant="light"
@@ -45,14 +56,20 @@
                     </b-dropdown-item>
                   </b-dropdown>
                 </div>
+
               </div>
             </div>
           </div>
         </div>
+
         <div class="container-fluid period-wrapper d-flex justify-content-between">
+
+          <!-- Отображение периода -->
           <div>
             <b>Период:</b> {{ humanize_period(params.timestamp_from, params.timestamp_to) }}
           </div>
+
+          <!-- Количество транзакций и кнопка "Обновить" -->
           <div class="text-right">
             <span
               class="oi oi-loop-circular reload-button"
@@ -61,28 +78,40 @@
               v-on:click.prevent="load_transactions"></span>
             <b>{{ count }}</b> транзакций
           </div>
+
         </div>
+
+        <!-- Агрегации -->
         <div class="container-fluid aggs-wrapper">
+
+          <!-- Агрегация доходов -->
           <transactions-aggs
             v-on:filterCategory="changeCategory($event)"
             :aggs="aggs.income"
             :filteredCategory="filterCategory"
             title="Доходы"></transactions-aggs>
+
+          <!-- Агрегация расходов -->
           <transactions-aggs
             v-on:filterCategory="changeCategory($event)"
             :aggs="aggs.expense"
             :filteredCategory="filterCategory"
             title="Расходы"></transactions-aggs>
+
         </div>
+
         <div class="content">
           <div class="list-group list-group-flush">
+
+            <!-- Транзакция -->
             <div class="list-group-item"
               v-for="transaction in transactions"
-              :key="transaction.id"
-            >
+              :key="transaction.id">
               <div class="row">
                 <div class="col-4">
                   <div>
+
+                    <!-- Направление транзакции -->
                     <small class="direction-pointer">
                       <span
                         class="oi oi-account-login text-success"
@@ -95,8 +124,14 @@
                         v-b-tooltip.hover
                         title="Расход"></span>
                     </small>
+
+                    <!-- Сумма транзакции -->
                     <b>{{ formatPrice(transaction.amount) }}</b>
+
+                    <!-- Валюта транзакции -->
                     <small class="text-info">{{ transaction.currency }}</small>
+
+                    <!-- Аппроксимация в валюте по умолчанию -->
                     <template v-if="transaction.default_currency !== null">
                       <small class="text-muted">
                         ≈
@@ -104,23 +139,47 @@
                         {{ transaction.default_currency.currency }}
                         </small>
                     </template>
+
                   </div>
+
+                  <!-- Время транзакции -->
                   <div>
                     <small class="text-muted">{{ transaction.timestamp | formatDateTime }}</small>
                   </div>
+
+                  <!-- Бейджик имени пользователя.
+                       Если не пользователь owner транзакции -->
+                  <div v-if="transaction.owner.username !== username">
+                    <span
+                      v-b-tooltip.hover
+                      class="badge badge-secondary"
+                      :title="transaction.owner.first_name + ' ' + transaction.owner.last_name">
+                      {{ transaction.owner.first_name }}
+                    </span>
+                  </div>
+
                 </div>
+
+                <!-- Текст транзакции -->
                 <div class="col-3">
                   <text-highlight :queries="query">
                     {{ transaction.record.text }}
                   </text-highlight>
                 </div>
+
+                <!-- Выбор категории -->
                 <div class="col-5 d-flex justify-content-end">
                   <category-select
+                    v-bind:readonly="transaction.owner.username !== username"
                     v-bind:transaction="transaction"></category-select>
                 </div>
+
               </div>
             </div>
+
           </div>
+
+          <!-- Пагинация снизу страницы -->
           <div class="container-fluid pagination-wrapper">
             <b-pagination
               v-model="currentPage"
@@ -130,6 +189,7 @@
               v-if="count > limit"
             ></b-pagination>
           </div>
+
         </div>
       </div>
     </main>
@@ -172,10 +232,14 @@ export default {
         '_with': {id: 1, name: '_with', title: 'С категорией'},
         '_null': {id: 2, name: '_null', title: 'Без категории'}
       },
-      filterCategory: '_with'
+      filterCategory: '_with',
+      other_owners: [2]
     }
   },
   computed: {
+    username () {
+      return this.$store.state.username
+    },
     lower_query () {
       return this.query.toLowerCase()
     },
@@ -185,6 +249,9 @@ export default {
       } else {
         return this.filterCategories['_null'].title
       }
+    },
+    other_owners_list () {
+      return this.other_owners.join(',')
     },
     periods () {
       let months = [
@@ -240,7 +307,9 @@ export default {
   },
   methods: {
     load_transactions () {
-      axios.get(ApiUrl + `/spender/transactions?page=${this.currentPage}&q=${encodeURIComponent(this.query)}&period=${this.current_period}&category=${this.filterCategory}`, {
+      axios.get(ApiUrl + `/spender/transactions?page=${this.currentPage}` +
+        `&q=${encodeURIComponent(this.query)}&period=${this.current_period}` +
+        `&category=${this.filterCategory}&other_owners=${this.other_owners_list}`, {
         headers: { Authorization: `Token ${this.$store.state.token}` }
       })
         .then(response => {

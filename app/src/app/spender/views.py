@@ -148,6 +148,9 @@ class TransactionsView(GenericAPIView):
 
         transactions = Transaction.filter_transactions(
             request.user,
+            # Используется .pop чтобы предотвратить сериализацию
+            # User и вообще попадание его в вывод
+            other_owners=params_serializer.validated_data.pop('other_owners_users'),
             q=params_serializer.validated_data['q'],
             timestamp_from=params_serializer.validated_data['timestamp_from'],
             timestamp_to=params_serializer.validated_data['timestamp_to'],
