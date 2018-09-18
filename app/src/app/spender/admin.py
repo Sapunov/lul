@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Transaction, Category, ExchangeRate
+from .models import Transaction, Category, ExchangeRate, TransactionsSharing
 
 
 class TransactionAdmin(admin.ModelAdmin):
@@ -17,6 +17,12 @@ class ExchangeRateAdmin(admin.ModelAdmin):
     ordering = ('-date',)
 
 
+class TransactionsSharingAdmin(admin.ModelAdmin):
+
+    list_display = ('owner', 'other_user', 'mode')
+
+
 admin.site.register(Transaction, TransactionAdmin)
 admin.site.register(Category)
 admin.site.register(ExchangeRate, ExchangeRateAdmin)
+admin.site.register(TransactionsSharing, TransactionsSharingAdmin)

@@ -4,7 +4,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError, NotFound
 from datetime import timedelta
 
-from app.spender.models import Category, Transaction
+from app.spender.models import Category, Transaction, TransactionsSharing
 from app.spender import timeperiods
 
 
@@ -225,8 +225,10 @@ class FilterParamsSerializer(serializers.Serializer):
                     if user_id == user.pk:
                         continue
                     try:
-                        user = User.objects.get(pk=user_id)
-                        other_owners.append(user)
+                        other_user = User.objects.get(pk=user_id)
+                        if TransactionsSharing.objects.filter(
+                                owner=other_user, other_user=user).exists():
+                            other_owners.append(other_user)
                     except User.DoesNotExist:
                         continue
             except ValueError:

@@ -19,6 +19,11 @@ DIRECTIONS = (
     (1, 'expense')
 )
 
+TRANSACTIONS_SHARING_MODES = (
+    (0, 'read'),
+    (1, 'write')
+)
+
 
 class Category(models.Model):
 
@@ -304,3 +309,19 @@ class Transaction(models.Model):
 
         categories = Category.get_user_and_common(self.owner)
         return categories
+
+
+class TransactionsSharing(models.Model):
+
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
+    other_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
+    mode = models.SmallIntegerField(choices=TRANSACTIONS_SHARING_MODES)
+
+    def __str__(self):
+
+        return '<TransactionsSharing: {0} --> {1} ({2})>'.format(
+            self.owner, self.other_user, TRANSACTIONS_SHARING_MODES[self.mode][1])
+
+    def __repr__(self):
+
+        return self.__str__()
