@@ -235,5 +235,7 @@ class FilterParamsSerializer(serializers.Serializer):
                 raise ValidationError({'owners': _('Owner ids invalid')})
 
             attrs['other_owners_users'] = other_owners
+        else:
+            attrs['other_owners_users'] = None
 
         return attrs

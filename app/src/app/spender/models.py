@@ -199,13 +199,16 @@ class Transaction(models.Model):
                 filters['category__pk'] = category
 
         owners = [owner]
-        owners.extend(other_owners)
 
-        # Если у другого пользователя нет категории на транзакции,
-        # то транзакция не должна быть показана
-        other_uncategorized = cls.objects.filter(
-            owner__in=other_owners,
-            category__isnull=True).values_list('pk', flat=True)
+        if other_owners:
+            # Если у другого пользователя нет категории на транзакции,
+            # то транзакция не должна быть показана
+            other_uncategorized = cls.objects.filter(
+                owner__in=other_owners,
+                category__isnull=True).values_list('pk', flat=True)
+            owners.extend(other_owners)
+        else:
+            other_uncategorized = []
 
         transactions = cls.objects.filter(
             owner__in=owners, **filters).exclude(
