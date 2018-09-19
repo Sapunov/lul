@@ -4,7 +4,10 @@
     <!-- Левое навигационное меню -->
     <nav class="nav-wrapper mr-3">
       <spender-nav></spender-nav>
-      <div class="filters-wrapper py-2 mt-3" v-if="false">
+      <div class="filters-wrapper py-3 mt-3">
+        <select-shared-users
+          v-on:filterSharedUsers="filterSharedUsers($event)">
+        </select-shared-users>
       </div>
     </nav>
 
@@ -203,6 +206,7 @@ import { ApiUrl } from '@/config'
 import SpenderNav from './SpenderNav'
 import CategorySelect from './CategorySelect'
 import TransactionsAggs from './TransactionsAggs'
+import SelectSharedUsers from './SelectSharedUsers'
 import TextHighlight from 'vue-text-highlight'
 import vSelect from 'vue-select'
 import moment from 'moment'
@@ -233,7 +237,7 @@ export default {
         '_null': {id: 2, name: '_null', title: 'Без категории'}
       },
       filterCategory: '_with',
-      other_owners: [2]
+      other_owners: []
     }
   },
   computed: {
@@ -283,6 +287,10 @@ export default {
       this.load_transactions()
     },
     query (newQuery, oldQuery) {
+      this.currentPage = 1
+      this.load_transactions()
+    },
+    other_owners (newOwners, oldOwners) {
       this.currentPage = 1
       this.load_transactions()
     },
@@ -377,6 +385,9 @@ export default {
       } else {
         this.filterCategory = category.id
       }
+    },
+    filterSharedUsers (filteredUsers) {
+      this.other_owners = filteredUsers.map(({id}) => id)
     }
   },
   components: {
@@ -384,7 +395,8 @@ export default {
     CategorySelect,
     TextHighlight,
     vSelect,
-    TransactionsAggs
+    TransactionsAggs,
+    SelectSharedUsers
   }
 }
 </script>
