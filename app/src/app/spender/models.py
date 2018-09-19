@@ -19,6 +19,11 @@ DIRECTIONS = (
     (1, 'expense')
 )
 
+TRANSACTIONS_SHARING_MODES = (
+    (0, 'read'),
+    (1, 'write')
+)
+
 
 class Category(models.Model):
 
@@ -171,7 +176,7 @@ class Transaction(models.Model):
 
     @classmethod
     def filter_transactions(cls, owner, q=None, timestamp_from=None,
-            timestamp_to=None, tags=None, category=None):
+            timestamp_to=None, tags=None, category=None, other_owners=None):
 
         filters = {}
 
@@ -193,7 +198,21 @@ class Transaction(models.Model):
                 assert isinstance(category, int), 'Category must be ot type int'
                 filters['category__pk'] = category
 
-        transactions = cls.objects.filter(owner=owner, **filters)
+        owners = [owner]
+
+        if other_owners:
+            # Если у другого пользователя нет категории на транзакции,
+            # то транзакция не должна быть показана
+            other_uncategorized = cls.objects.filter(
+                owner__in=other_owners,
+                category__isnull=True).values_list('pk', flat=True)
+            owners.extend(other_owners)
+        else:
+            other_uncategorized = []
+
+        transactions = cls.objects.filter(
+            owner__in=owners, **filters).exclude(
+                pk__in=other_uncategorized)
 
         return transactions
 
@@ -293,3 +312,19 @@ class Transaction(models.Model):
 
         categories = Category.get_user_and_common(self.owner)
         return categories
+
+
+class TransactionsSharing(models.Model):
+
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
+    other_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
+    mode = models.SmallIntegerField(choices=TRANSACTIONS_SHARING_MODES)
+
+    def __str__(self):
+
+        return '<TransactionsSharing: {0} --> {1} ({2})>'.format(
+            self.owner, self.other_user, TRANSACTIONS_SHARING_MODES[self.mode][1])
+
+    def __repr__(self):
+
+        return self.__str__()

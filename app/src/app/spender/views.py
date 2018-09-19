@@ -3,11 +3,12 @@ from rest_framework.generics import GenericAPIView, ListAPIView
 from rest_framework.response import Response
 
 from app.common import get_logger
-from app.spender.models import Transaction, Category
+from app.spender.models import Transaction, Category, TransactionsSharing
 from app.spender.aggregations import aggregate_transactions
 from app.spender.serializers import (
     CategorySerializer, TransactionSerializer, CategoryDeleteSerializer,
-    CategorySetSerializer, CategoryIdSerializer, FilterParamsSerializer)
+    CategorySetSerializer, CategoryIdSerializer, FilterParamsSerializer,
+    UserSerializer)
 
 
 ALLOWED_LABELS = ('income', 'expense')
@@ -148,6 +149,9 @@ class TransactionsView(GenericAPIView):
 
         transactions = Transaction.filter_transactions(
             request.user,
+            # Используется .pop чтобы предотвратить сериализацию
+            # User и вообще попадание его в вывод
+            other_owners=params_serializer.validated_data.pop('other_owners_users'),
             q=params_serializer.validated_data['q'],
             timestamp_from=params_serializer.validated_data['timestamp_from'],
             timestamp_to=params_serializer.validated_data['timestamp_to'],
@@ -208,3 +212,19 @@ class CategoryConfirmView(GenericAPIView):
         transaction.save()
 
         return Response()
+
+
+class SharedUsersView(GenericAPIView):
+
+    serializer_class = UserSerializer
+
+    def get(self, request):
+
+        other_users = [item.owner for item in TransactionsSharing.objects.filter(
+            other_user=request.user)]
+        queryset = self.paginate_queryset(other_users)
+        serializer = self.get_serializer(queryset, many=True)
+
+        response = self.get_paginated_response(serializer.data)
+
+        return response
