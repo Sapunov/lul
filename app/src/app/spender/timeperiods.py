@@ -80,8 +80,8 @@ def month_one():
 
     now = timezone.now()
     month_one = now.month - 1
-    if month_one < 0:
-        month_one = 11
+    if month_one <= 0:
+        month_one = 12
         year = now.year - 1
     else:
         year = now.year
@@ -95,8 +95,11 @@ def month_two():
 
     now = timezone.now()
     month_one = now.month - 2
-    if month_one < 0:
-        month_one = 11
+    if month_one <= 0:
+        if month_one < 0:
+            month_one = 11
+        else:
+            month_one = 12
         year = now.year - 1
     else:
         year = now.year
